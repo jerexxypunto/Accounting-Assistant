@@ -396,6 +396,8 @@ function buscarEnLibroDiario( allMemos, termino, columna ){
     }
 
   } );
+
+  console.log( 'Coincidencia: ', match );
   
   return JSON.stringify(match);
 }
