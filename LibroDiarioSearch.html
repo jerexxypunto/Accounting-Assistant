@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libro Diario Search</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f0f3f6; font-family: 'Open Sans', Helvetica, Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+
+    <!-- Contenedor externo para asegurar el fondo en Gmail -->
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f0f3f6; table-layout: fixed;">
+        <tr>
+            <td align="center" style="padding: 20px 10px;">
+                
+                <!-- Tabla Principal de Contenido -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 900px; margin: 0 auto; width: 100%; border-collapse: collapse;">
+                    
+                    <!-- Encabezado y Detalles de Búsqueda -->
+                    <tr> 
+                        <td colspan="5" style="padding: 0; text-align: left;"> 
+                            <h1 style="margin: 0; padding: 30px 0 10px 30px; font-size: 48px; line-height: 1.1em; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-weight: 500; color: #333333;"> 
+                                <b style="color: #0992C2; font-weight: 700;"><?= coincidencias.length ?></b> Resultados de Búsqueda 
+                            </h1>
+                            
+                            <h2 style="margin: 0; font-size: 24px; line-height: 1.3em; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-weight: 400; padding: 0 30px 40px 30px; color: #333333;"> 
+                                Se han encontrado <b style="color: #0992C2; font-weight: 700;"><?= coincidencias.length ?></b> coincidencias para <?= searchTerm ?>: <b style="color: #0992C2; font-weight: 700;">"<?= keyword ?>"</b> en el libro diario de <b style="color: #0992C2; font-weight: 700;"><?= mes ?></b> de la municipalidad de <b style="color: #0992C2; font-weight: 700;">"<?= municipalidadTitle ?>"</b>. 
+                            </h2>
+                            
+                            <!-- Caja de Información del Documento -->
+                            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; margin-bottom: 30px;">
+                                <ul style="list-style: none; padding: 0; margin: 0;">
+                                    <li style="margin-bottom: 10px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5em;"> ID del documento: <strong><?= id_document ?></strong></li>
+                                    <li style="margin-bottom: 10px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5em;"> Nombre de la pestaña: <strong><?= nombre_tab ?></strong> </li>
+                                    <li style="margin-bottom: 10px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5em;"> Nombre de documento: <strong><?= nombre_document ?></strong></li>
+                                    <li style="margin-bottom: 10px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5em;"> Link del documento: <a href="<?= link_document ?>" style="color: #0B2D72; text-decoration: underline;">Ver documento completo</a> </li>
+                                    <li style="margin-bottom: 10px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5em;"> Municipalidad: <strong><?= municipalidadTitle ?></strong></li>
+                                    <li style="margin-top: 0; margin-bottom: 0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5em;"> Período: <strong><?= periodo ?></strong> </li>
+                                </ul>
+                            </div>
+                        </td> 
+                    </tr>
+
+                    <!-- Sección Resúmenes -->
+                    <tr>
+                        <td colspan="5" style="padding: 10px 0 10px 0; text-align: left;"> 
+                            <h3 style="margin: 0; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 18px; font-weight: 500; color: #333333;">Resúmenes</h3> 
+                        </td>
+                    </tr>
+
+                    <!-- Fila Total Haber -->
+                    <tr>
+                        <td colspan="2" style="padding: 10px; background-color: #ffffff; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; border-left: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left;"> Total Haber: </td>
+                        <td colspan="3" style="padding: 10px; background-color: #ffffff; border-top: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left; font-weight: bold;"> <?= total_haber ?> </td>
+                    </tr>
+
+                    <!-- Fila Total Debe -->
+                    <tr>
+                        <td colspan="2" style="padding: 10px; background-color: #ffffff; border-bottom: 1px solid #e0e0e0; border-left: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left;"> Total Debe: </td>
+                        <td colspan="3" style="padding: 10px; background-color: #ffffff; border-bottom: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left; font-weight: bold;"> <?= total_debe ?> </td>
+                    </tr>
+
+                    <!-- Sección Detalle -->
+                    <tr> 
+                        <td colspan="5" style="padding: 25px 0 10px 0; text-align: left;"> 
+                            <h3 style="margin: 0; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 18px; font-weight: 500; color: #333333;"> Detalle </h3> 
+                        </td> 
+                    </tr>
+                    
+                    <!-- Encabezados Tabla Detalle -->
+                    <tr style="background-color: #0992C2;"> 
+                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> N de Cuenta </th> 
+                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Glosa </th> 
+                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Fecha </th> 
+                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Debe </th> 
+                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Haber </th> 
+                    </tr>
+
+                    <!-- Filas de Datos Dinámicas -->
+                    <? for (var i = 0; i < 25 ; i++) { 
+                        var asiento = coincidencias[i];
+                        
+                        // Lógica opcional para limpiar la fecha si viene con hora (ej: "2026-01-02T08:00...")
+                        var fechaFormateada = asiento.fechaAsiento;
+                        if (fechaFormateada && fechaFormateada.indexOf('T') !== -1) {
+                          var partes = fechaFormateada.split('T')[0].split('-');
+                          fechaFormateada = partes[2] + '/' + partes[1] + '/' + partes[0]; // Retorna DD/MM/AAAA
+                        }
+                    ?>
+                    <tr> 
+                        <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left;">
+                            <?= asiento.codigoCuenta ?><br>
+                            <small style="color: #777777; font-size: 11px;"><?= asiento.nombreCuenta ?></small>
+                        </td>
+                        <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left;">
+                            <?= asiento.glosaAsiento ?>
+                        </td>
+                        <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left; white-space: nowrap;">
+                            <?= fechaFormateada ?>
+                        </td>
+                        <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: right;">
+                            $<?= (asiento.debe || 0).toLocaleString('es-CL') ?>
+                        </td>
+                        <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: right;">
+                            $<?= (asiento.haber || 0).toLocaleString('es-CL') ?>
+                        </td>
+                    </tr>
+                    <? } ?>
+
+                    <!-- Aviso de resultados recortados si superan los 25 -->
+                    <? if (coincidencias.length > 25) { ?>
+                    <tr> 
+                        <td colspan="5" style="padding: 15px 8px; background-color: #fff3cd; border: 1px solid #ffeeba; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; color: #856404; text-align: center; font-weight: bold;"> 
+                            Se han recortado los resultados para mostrar solo los 25 primeros.
+                        </td> 
+                    </tr>
+                    <? } ?>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+    
+</body>
+</html>

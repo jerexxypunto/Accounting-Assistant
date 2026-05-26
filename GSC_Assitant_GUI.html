@@ -1,0 +1,567 @@
+class GSC_Assitant_GUI {
+    constructor() {
+        this.gscModal = null;
+        this.configPersonalContrata = null;
+        this.configPersonalPlanta = null;
+        this.configLibrioDiario = null;
+        this.configLibrioDiarioStatics = null;
+        this.actionsPanel = null;
+        this._flowHiddenDuringLoad = [];
+        this._flowLoaderContainer = null;
+        this.bootstrap();
+    }
+
+    beginFlowLoading() {
+        const flow = document.querySelector(".contabilidad-flow");
+        if (!flow) return;
+
+        this._flowHiddenDuringLoad = [];
+        flow.querySelectorAll(":scope > *").forEach(function (el) {
+            el.classList.add("d-none");
+            this._flowHiddenDuringLoad.push(el);
+        }.bind(this));
+
+        const loader = new GSC_Loader(".contabilidad-flow");
+        this._flowLoaderContainer = loader.addLoader();
+        if (this._flowLoaderContainer) {
+            this._flowLoaderContainer.classList.remove("d-none");
+        }
+    }
+
+    endFlowLoading() {
+        this._flowHiddenDuringLoad.forEach(function (el) {
+            el.classList.remove("d-none");
+        });
+
+        this._flowHiddenDuringLoad = [];
+
+        if (this._flowLoaderContainer) {
+            this._flowLoaderContainer.classList.add("d-none");
+        }
+    }
+
+    bootstrap() {
+        this.initializeGlobalState();
+        this.beginFlowLoading();
+        this.loadContabilidadDriveFoldersOnce();
+        this.initializeComponents();
+        this.initializeContactModal();
+        this.initializeActionsPanel();
+        this.portalTransparenciaRender();
+    }
+
+    portalTransparenciaRender(){
+      const portalTrasparenciaNum = document.querySelectorAll(".portal-trasnparencia .data .valor");
+      Array.from( portalTrasparenciaNum ).forEach( num => {
+          new ActionPanel().moneyShow( num );        
+      } );
+    }
+
+    initializeActionsPanel(){
+      const actionsPanel = new ActionPanel();
+      actionsPanel.addAction('trasparenciRecopilate',  this.runCruzarPersonal.bind(this), 'Recopilando Transparencia');
+      actionsPanel.addAction('formatear', this.runFormatearLibroDiario.bind(this), 'Formateando Libro diario' );
+      actionsPanel.addAction('libroDiarioRecopilate', this.runRecopilarLibroDiario.bind(this), 'Recopilando Libro Diario' );
+      actionsPanel.addAction('compara', this.runComparate.bind(this), 'Comparando Libro diario' );
+      this.actionsPanel = actionsPanel;
+      actionsPanel.toogleDisableButton();
+    }
+
+
+    initializeGlobalState() {
+        window.portalTrasparencia = {
+            contrata: { remuneracion: 0, remuneracionBono: 0, total_gastos: 0 },
+            planta: { remuneracion: 0, remuneracionBono: 0, total_gastos: 0 },
+            suma: { total_remuneracion: 0, total_remuneracion_bono: 0, total_gastos: 0 }
+        };
+        window.libroDiario = {};
+        window.contabilidadDriveFolders = undefined;
+        window.comparation = window.comparation || null;
+    }
+
+    appendSheetPickerModalsToConfigCards() {
+        if (!this.gscModal) return;
+        var defs = [
+            {
+                cardClass: "config-personal-contrata",
+                id: "personaContrata_modalHojas",
+                title: "Seleccionar hoja de cálculo — Personal a contrata"
+            },
+            {
+                cardClass: "config-personal-planta",
+                id: "personalPlanta_modalHojas",
+                title: "Seleccionar hoja de cálculo — Personal de planta"
+            },
+            {
+                cardClass: "config-librio-diario",
+                id: "libroDiario_modalHojas",
+                title: "Seleccionar hoja de cálculo — Libro diario"
+            }
+        ];
+        defs.forEach(
+            function (d) {
+                var body = document.querySelector("." + d.cardClass + " .card-body");
+                if (body) {
+                    this.gscModal.appendSheetPickerModal(body, d.id, d.title);
+                }
+            }.bind(this)
+        );
+    }
+
+    renderizarTablaLibroDiario(resultados) {
+
+      const filasRaw = JSON.parse( resultados );
+
+      console.log( 'filasRaw', filasRaw );
+
+      const filas = filasRaw.map( resultado => {
+          return `<tr>
+              <td>${resultado.glosaAsiento}</td>
+              <td>${resultado.codigoCuenta}</td>
+              <td>${resultado.nombreCuenta}</td>
+              <td>${resultado.debe}</td>
+              <td>${resultado.haber}</td>
+              <td>$${resultado.rutContraparte}</td>
+          </tr>`;
+      } ).join("");
+
+      console.log( 'filas', filas );
+
+      const modalBody = document.querySelector("#modalBusquedaLibroDiario .modal-body");
+      if (!modalBody) return;
+
+      const currentTable = document.querySelector('#modalBusquedaLibroDiario .modal-search-table ');
+      if( currentTable ){
+        currentTable.remove();
+      }
+
+      const tableContainer = document.createElement("DIV");
+      const table = document.createElement("TABLE");
+      const thead = document.createElement("THEAD");
+      thead.innerHTML = `<tr>
+                            <th scope="col">Glosa asiento</th>
+                            <th scope="col">Código de cuenta</th>
+                            <th scope="col">Nombre de cuenta</th>
+                            <th scope="col">Deber</th>
+                            <th scope="col">Haber</th>
+                            <th scope="col">Rut</th>
+                        </tr>`;
+
+      const tbody = document.createElement("TBODY");
+      tbody.innerHTML = filas;
+
+      tableContainer.classList.add('modal-search-table');
+      table.appendChild(thead);
+      table.appendChild(tbody); 
+      table.classList.add('table');
+
+      tableContainer.appendChild( table );
+
+      modalBody.appendChild(tableContainer); 
+
+      console.log("Resultados para renderizar en el Libro Diario:", resultados);
+  }
+
+    initializeComponents() {
+      
+        this.gscModal = new GSC_Modal();
+        this.appendSheetPickerModalsToConfigCards();
+
+        const searchIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>`;
+
+         // Corregido: Usar Arrow Function para que 'this.renderizarTablaLibroDiario' sea accesible
+        const searchCallback = (data) => {
+            const fieldMap = {
+                'glosa': 'glosaAsiento',
+                'cuenta-nombre': 'nombreCuenta',
+                'cuenta-codigo': 'codigoCuenta',
+                'rut-contraparte': 'rutContraparte'
+            };
+
+            const allMemos = this.getAllMemos();
+
+            const termino = data.query;
+            const field = fieldMap[data.field] || data.field;
+
+            google.script.run
+                .withSuccessHandler((resultados) => {
+                    this.renderizarTablaLibroDiario(resultados);
+                    window.searchModalData = resultados;
+                    window.searModalDataSearchTerms = {
+                      termino,
+                      field
+                    };
+                })
+                .withFailureHandler((error) => {
+                    console.error("Error en búsqueda:", error);
+                })
+                .buscarEnLibroDiario(allMemos, termino, field);
+        };
+
+        const sendReport = (filteredData) => {
+            
+          if( ! window.hasOwnProperty('searchModalData') ){
+            console.error('Error: sendReport', 'searchModalData not defined in window' );
+          }
+
+          const data = JSON.parse( window.searchModalData );
+          console.log( 'sendReport', data );
+          const calcularTotales = (data) => {
+              return data.reduce((acumulador, item) => {
+                // Sumamos el debe y haber de la fila actual al acumulador
+                acumulador.debe += parseInt( item.debe ) || 0;
+                acumulador.haber += parseInt( item.haber ) || 0;
+                
+                return acumulador;
+              }, { debe: 0, haber: 0 }); 
+          };
+
+          const totales = calcularTotales( data );
+
+          const libroDiarioConfig = this.configLibrioDiario.getMemo();
+
+          const mailOptions = {
+            keyword: window.searModalDataSearchTerms.termino ,
+            searchTerm: searModalDataSearchTerms.field,
+            mes: data[0].periodo,
+            municipalidadTitle: data[0].municipioNombre ,
+            periodo: data[0].ejercicio ,
+            id_document: libroDiarioConfig.spreadsheetId,
+            nombre_document: libroDiarioConfig.name,
+            link_document: "https://docs.google.com/spreadsheets/d/1DanABj66cZPb3oN6XPnBqpo5zgrQXMP33ls6HLnzXzQ/edit",
+            nombre_tab: "Custom Format",
+            total_debe: totales.debe,     // Pasamos el número crudo (la función lo formatea a $)
+            total_haber: totales.haber,   // Pasamos el número crudo
+            coincidencias: data // Pasamos el array completo para que el HTML genere el bucle
+          };
+
+          if (!confirm("¿Desea enviar el reporte por correo electrónico?")) {
+            return;
+          }
+
+          const email = prompt("Ingrese el correo electrónico del destinatario:");
+          if (!email || !email.trim()) {
+            return;
+          }
+          const emailDestino = email.trim();
+
+          google.script.run
+          .withSuccessHandler(function(resultado) {
+            // Esto se ejecuta si el correo se envió correctamente
+            console.log("Servidor responde:", resultado);
+            alert("¡El correo fue enviado con éxito a " + emailDestino + "!");
+          })
+          .withFailureHandler(function(error) {
+            // Esto se ejecuta si algo falló en el backend (ej: cuota de Gmail excedida)
+            console.error("Error en el servidor:", error);
+            alert("Hubo un error al enviar el correo: " + error.message);
+          })
+          .enviarLibroDiarioBusquedaEmail( 
+            emailDestino, 
+            'Enviar Reporte de Libro Diario ' + data.length + ' para ' + window.searModalDataSearchTerms.termino , 
+            mailOptions
+            );
+          
+        };
+
+        const createLibroDiarioSearchModal = this.gscModal.createLibroDiarioSearchModal(
+         'Buscar en Libro Diario '+ searchIconSVG,                  
+          "btnBuscarLibroDiario",       
+          "modalBusquedaLibroDiario",        
+          "Filtrar Libro Diario",            
+          searchCallback,
+          sendReport              
+        );
+
+        console.log('createLibroDiarioSearchModal', createLibroDiarioSearchModal );
+
+        this.configPersonalContrata = new ConfigForm("config-personal-contrata", "Contrata");
+        this.configPersonalContrata.activeButton();
+
+        this.configPersonalPlanta = new ConfigForm("config-personal-planta", "Planta");
+        this.configPersonalPlanta.activeButton();
+
+        this.configLibrioDiario = new ConfigForm("config-librio-diario", "Libro Diario");
+        this.configLibrioDiario.activeButton();
+
+        this.configLibrioDiarioStatics = new ConfigForm("municipio-config", "Municipio Config");
+        this.configLibrioDiarioStatics.activeButton();
+        this.configLibrioDiarioStatics.toggleVisibilityBox(".municipio-config-box");
+    }
+
+    
+
+    initializeContactModal() {
+        this.gscModal.createContactModalWithButton(
+            "Contacto",
+            "contacto-button",
+            "contacto-modal",
+            "Formulario de contacto",
+            function (data) {
+                const emailValue = data.emailValue;
+                const configMemo = this.configLibrioDiarioStatics.getMemo() || {};
+                const staticsFields = [];
+
+                for (const key in configMemo) {
+                    if (key.includes("staticsFields")) {
+                        staticsFields.push(configMemo[key]);
+                    }
+                }
+
+                this.runAditoria(emailValue, staticsFields);
+            }.bind(this)
+        );
+    }
+
+    loadContabilidadDriveFoldersOnce() {
+        if (window.__contabilidadDriveFoldersRequested) return;
+
+        window.__contabilidadDriveFoldersRequested = true;
+
+        this.runListDriveRootFolders(
+            function (list) {
+                window.contabilidadDriveFolders = Array.isArray(list) ? list : [];
+                this.endFlowLoading();
+            }.bind(this),
+            function () {
+                window.contabilidadDriveFolders = null;
+                this.endFlowLoading();
+            }.bind(this)
+        );
+    }
+
+    librioDiarioRender( libroDiario ){
+
+      console.log("libroDiario: ", libroDiario );
+
+      const libroDiarioNums = document.querySelectorAll(".libro-diario .data .valor");
+      const librioDiarioLables = document.querySelectorAll(".libro-diario .data .label");
+      const libroDiarioHTML = document.querySelector(".libro-diario");
+
+      console.log("librioDiarioLables: ", librioDiarioLables );
+
+      Array.from(libroDiarioNums).forEach( ( span, index ) => {
+
+          const dataRow = span.getAttribute("data-row");
+          const label = librioDiarioLables[index];
+          console.log("label: ", label );
+
+          if( dataRow === 'libro-diario-contrata-debe' ){
+              span.textContent =  "$" + new ActionPanel().moneyParser(libroDiario.persona_contrata.total_debe).join(".");
+              label.innerHTML = "<b>" + label.innerHTML + "</b> " + libroDiario.persona_contrata.personal[0].codigoCuenta;
+          }
+          if( dataRow === 'libro-diario-planta-debe' ){
+              span.textContent = "$" + new ActionPanel().moneyParser(libroDiario.persona_planta.total_debe).join(".");
+              label.innerHTML = "<b>" +label.innerHTML + "</b> " + libroDiario.persona_planta.personal[0].codigoCuenta;
+          }        
+
+      } );
+
+      let horas_extra_contrata = "<h4>Trabajos Extraordinarios</h4>";
+      let horas_extra_planta = "<h4>Trabajos Extraordinarios</h4>";
+      libroDiario.horas_extra.personal.forEach( item => {
+                  const moneyParse = "$" +  new ActionPanel().moneyParser(item.debe).join(".");
+                  const codigoCuenta = item.codigoCuenta;
+
+                  // Si el codigo contiene 215-21-01 es una cuenta de planta
+                  if( codigoCuenta.includes( "215-21-01" ) ){
+                      horas_extra_planta = horas_extra_planta + 
+                      `<div class="data data-last">
+                          <span class="label"><b>N° de Cuenta:</b> ${item.codigoCuenta} </span> <span data-type="money" data-row="libro-diario-trabajo-extra-haber" class="valor">${ moneyParse }</span>
+                      </div>`;
+                  }
+
+                  // Si el codigo contiene 215-21-02 es una cuenta de contrata
+                  if( codigoCuenta.includes( "215-21-02" ) ){
+                      horas_extra_contrata = horas_extra_contrata + 
+                      `<div class="data data-last">
+                          <span class="label"><b>N° de Cuenta:</b> ${item.codigoCuenta} </span> <span data-type="money" data-row="libro-diario-trabajo-extra-haber" class="valor">${ moneyParse }</span>
+                      </div>`;
+                  }
+      } );
+
+      libroDiarioHTML.querySelector( ".contrata" ).innerHTML = libroDiarioHTML.querySelector( ".contrata" ).innerHTML + horas_extra_contrata;
+      libroDiarioHTML.querySelector( ".planta" ).innerHTML = libroDiarioHTML.querySelector( ".planta" ).innerHTML + horas_extra_planta;
+    
+      
+  }
+
+  difereciaRender( { comparation } ){
+
+      const diferenciaHTML = document.querySelector(".diferencia-card .card-body");
+      const div = document.createElement("DIV");
+      div.classList.add("row");
+      
+      for ( let table in comparation ){
+
+          const { 
+              trasnparenciaNum,
+              libroDiarioNum,
+              diferencia,
+              diferenciaHorasExtras,
+              tableMajor,
+              tableMinor 
+          } = comparation[table];
+
+          const diferenciaParsed = "$" + new ActionPanel().moneyParser(diferencia).join(".");
+          const diferenciaHorasExtrasPared = "$" + new ActionPanel().moneyParser(diferenciaHorasExtras).join(".");
+
+          const titleMap = {
+              "contrata" : "Personal a Contrata",
+              "planta"    : "Personal de Planta"
+          };
+
+          const innerHtml = `<div class="col-5">
+          <div class="card p-4" >
+          <h5>Alerta en <b class="text-primary" >${titleMap[table]}</b></h5>
+          <p>Las tablas <b>${tableMajor}</b> y <b>${tableMinor}</b> no concuerdan.</p>
+          <p>Discrepancia en <b>total remuneración</b> <span class="money-higligth" >${diferenciaParsed}</span> </p>
+          <p>Discrepancia en <b>horas extras</b> <span class="money-higligth" >${diferenciaHorasExtrasPared}</span> </p>
+          </div>
+          </div>`;
+
+          div.innerHTML = div.innerHTML + innerHtml ;
+
+          diferenciaHTML.appendChild(div);
+      }
+      
+  }
+
+    getAllMemos(){
+        
+      const allmemos = {};
+      [
+        "contabilidad-config-contrata",
+        "contabilidad-config-planta",
+        "contabilidad-config-libro-diario",
+        "contabilidad-config-municipio-config"
+      ].forEach( item => {
+        const rawItem = localStorage.getItem( item );
+        allmemos[item] = JSON.parse(rawItem);
+      } );
+    
+      return allmemos;
+    }
+
+    getCreeds(){
+
+      const allmemos = this.getAllMemos();
+     
+      const personaContrata =   allmemos["contabilidad-config-contrata"];
+      const personaPlanta = allmemos["contabilidad-config-planta"];
+      const libroDiario =     allmemos["contabilidad-config-libro-diario"];
+      const municipioConfig = allmemos["contabilidad-config-municipio-config"]
+      return {
+        "personalPlanta":  { plantaTabName: personaPlanta.tabs[0].name, spreadsheetId: personaPlanta.spreadsheetId },
+        "personaContrata": { contrataTabName: personaContrata.tabs[0].name, spreadsheetId: personaContrata.spreadsheetId },
+        "libroDiario" :    { libroDiarioTabName: libroDiario.tabs[0].name, spreadsheetId: libroDiario.spreadsheetId },
+        "municipioConf": municipioConfig
+      }
+    }
+
+    runCruzarPersonal() {
+        const creds = this.getCreeds();
+
+        google.script.run
+            .withSuccessHandler(function (info) {
+                window.portalTrasparencia = info;
+                this.actionsPanel.showNotification("Registros cruzados exitosamente");
+                this.portalTransparenciaRender();
+                this.actionsPanel.toogleDisableButton();
+            }.bind(this))
+            .withFailureHandler(function (error) {
+                this.actionsPanel.erroNotification(error.message);
+            }.bind(this))
+            .main("trasparenciRecopilate", creds);
+    }
+
+    runFormatearLibroDiario() {
+        const creds = this.getCreeds();
+
+        google.script.run
+            .withSuccessHandler(function (info) {
+                window.libroDiario = { ok: true };
+                this.actionsPanel.showNotification("Libro Diario Formateado correctamente");
+                this.portalTransparenciaRender();
+                this.actionsPanel.toogleDisableButton();
+            }.bind(this))
+            .withFailureHandler(function (error) {
+                console.error("error:", error);
+                this.actionsPanel.erroNotification(error.message);
+            }.bind(this))
+            .main("formatear", creds);
+    }
+
+    runRecopilarLibroDiario() {
+        const creds = this.getCreeds();
+
+        google.script.run
+            .withSuccessHandler(function (info) {
+                const libroDiario = info.libroDiario;
+                window.libroDiario = info;
+                this.librioDiarioRender(libroDiario);
+                this.actionsPanel.showNotification("Comparación terminada");
+                this.actionsPanel.toogleDisableButton();
+            }.bind(this))
+            .withFailureHandler(function (error) {
+                console.error("error:", error);
+                this.actionsPanel.erroNotification(error.message);
+            }.bind(this))
+            .main("libroDiarioRecopilate", creds, window.portalTrasparencia);
+    }
+
+    runComparate() {
+        const creds = this.getCreeds();
+
+        google.script.run
+            .withSuccessHandler(function (response) {
+                window.comparation = response.comparation;
+                this.difereciaRender(response);
+                this.actionsPanel.showNotification("Comparación terminada");
+                this.actionsPanel.toogleDisableButton();
+            }.bind(this))
+            .withFailureHandler(function (error) {
+                console.error("error:", error);
+                this.actionsPanel.erroNotification(error.message);
+            }.bind(this))
+            .main("comparar", creds, {
+                portalTrasparencia: window.portalTrasparencia,
+                libroDiario: window.libroDiario.libroDiario
+            });
+    }
+
+    runAditoria(email, staticsFields) {
+        google.script.run
+            .withSuccessHandler(function () {
+                this.actionsPanel.showNotification("Auditoria Enviada");
+                this.actionsPanel.toogleDisableButton();
+            }.bind(this))
+            .withFailureHandler(function (error) {
+                console.error("error:", error);
+                this.actionsPanel.erroNotification(error.message);
+            }.bind(this))
+            .auditoriaRun({
+                portalTrasparencia: window.portalTrasparencia,
+                libroDiario: window.libroDiario.libroDiario,
+                comparation: window.comparation,
+                email,
+                staticsFields
+            });
+    }
+
+    runListDriveRootFolders(onSuccess, onFailure) {
+        google.script.run
+            .withSuccessHandler(function (response) {
+                if (typeof onSuccess === "function") {
+                    onSuccess(response);
+                }
+            })
+            .withFailureHandler(function (error) {
+                console.error("error:", error);
+                if (typeof onFailure === "function") {
+                    onFailure(error);
+                }
+            })
+            .listDriveRootFolders();
+    }
+}

@@ -1,0 +1,137 @@
+body{
+    --navy: #0B2D72;
+    --blue: #0992C2;
+    --sea: #0AC4E0;
+    --beige: #F6E7BC;
+    --bg-color: hsl(215, 15%, 95%);
+
+    background-color: var(--bg-color);
+
+}
+
+h1,h2,h3,h4,h5{
+    color: var(--blue);
+    font-weight: 500;
+    font-family: 'Rubik';
+}
+
+p{
+    font-family: 'Open Sans';
+}
+a, a:visited{
+  color: var(--navy);
+}
+  
+.btn{
+    background-color: var(--blue);
+    border-color: var(--blue);
+    border-radius: 0;
+    cursor: pointer;
+    transition: 0.1s ease-in-out;
+}
+
+.btn:active{
+    transform: scale(0.98);
+}
+
+.btn:disabled{
+    display: none;
+}
+
+.btn-secondary{
+    background-color: var(--blue);
+    border-color: var(--blue);
+}
+
+.text-primary{
+    color: var(--navy) !important;
+}
+
+.text-secondary{
+    color: var(--blue) !important;
+}
+
+.text-info{
+    color: var(--sea) !important;
+}
+  
+.action-panel__info{
+    display: flex;
+    gap:20px;
+}
+
+.action-panel__info h4{
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.action-panel__info .data {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.action-panel__info .data:last-child{
+    border: none;
+}
+
+.action-panel__info .data .label{
+    font-weight: 700;
+    font-family: 'Roboto';
+    color: var(--blue);
+}
+
+.action-panel__info .header span{
+    color: var(--navy);
+}
+
+.alert-container{
+
+    position: fixed;
+    top: 15%;
+
+}
+
+.loader-container {
+    display: flex;
+    justify-content: start;
+    padding: 30px 0 20px 0;
+}
+
+.loader-container p {
+    font-family: 'Roboto';
+    font-weight: bolder;
+}
+
+.libro-diario .libro-diario-row .data{
+    border-bottom: 1px solid #eeee;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.home-container{
+  display: grid;
+  place-items:center;
+  height: 90vh;
+}
+
+.btn a {
+  color: #fff;
+}
+
+.card-config label{
+    display: block;
+}
+
+.modal-search-table{
+  margin-top: 40px;
+  height: 45vh;
+  overflow: auto;
+}
+
+@media (min-width: 576px) {
+  .modal-dialog {
+    max-width: 1000px;
+  }
+}

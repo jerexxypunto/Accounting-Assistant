@@ -1,0 +1,587 @@
+class ConfigForm {
+
+    constructor(css_selector, nombre) {
+        this.css_selector = css_selector;
+        this.nombre = nombre;
+
+        this.nodo = document.querySelector("." + css_selector) || null;
+
+        if (!this.nodo) {
+            console.error("[ConfigForm] Nodo no encontrado:", css_selector);
+            return;
+        }
+
+        this.sheetPickerModal = this.nodo.querySelector(".sheet-picker-modal") || null;
+        this.sheetListEl =
+            this.sheetPickerModal && this.sheetPickerModal.querySelector
+                ? this.sheetPickerModal.querySelector(".sheet-picker-list")
+                : null;
+        this.openSheetPickerBtn = this.nodo.querySelector(".btn-open-sheet-picker") || null;
+
+        this._pickerView = "folders";
+        this._sheetsInCurrentFolder = [];
+        this._currentFolderName = "";
+
+        if (this.sheetPickerModal && this.sheetListEl) {
+            this.attachSpreadsheetModalOnOpen();
+        }
+
+        this.sync();
+    }
+
+    attachSpreadsheetModalOnOpen() {
+        var self = this;
+
+        var populate = function () {
+            self.populateSheetPickerList();
+        };
+
+        if (typeof jQuery !== "undefined" && this.sheetPickerModal) {
+            jQuery(this.sheetPickerModal).on("show.bs.modal", populate);
+        }
+
+        if (this.openSheetPickerBtn) {
+            this.openSheetPickerBtn.addEventListener("click", populate, true);
+        }
+    }
+
+    getKeyName() {
+        if (!this.nombre || typeof this.nombre !== "string") return null;
+
+        var nombre = this.nombre.toLowerCase();
+        nombre = nombre.replace(/\s+/g, "-");
+
+        return "contabilidad-config-" + nombre;
+    }
+
+    getMemo(option) {
+        var keyMemo = (option && option.keyMemo) ? option.keyMemo : this.getKeyName();
+        if (!keyMemo) return null;
+
+        try {
+            var raw = localStorage.getItem(keyMemo);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            console.error("Error leyendo localStorage", e);
+            return null;
+        }
+    }
+
+
+     sync( ) {
+        if (!this.nodo) return false;
+
+        var memo = this.getMemo();
+        if (!memo) return false;
+        //this.mostrarModalBusqueda(memo);
+
+        var fields = this.nodo.querySelectorAll("input");
+        if (!fields.length) return false;
+
+
+        fields.forEach( element => {
+            var name = element.name;
+
+            if (name.indexOf("_spid") !== -1) {
+                element.value = memo.spreadsheetId;
+            }
+
+            if (name.indexOf("tabName") !== -1) {
+                element.value = (memo.tabs[0] && memo.tabs[0].name) ? memo.tabs[0].name : "";
+            }
+
+            if (name.indexOf("staticsFields") !== -1) {
+                element.value = memo[name] || "";
+            }
+        });
+
+        if (this.openSheetPickerBtn && memo.name) {
+            this.openSheetPickerBtn.textContent = memo.name;
+        }
+
+        this.toggleVisibility(false);
+        
+  
+    }
+
+    printHtmlConfigVars( options ){
+      const fields = this.nodo.querySelectorAll("input");
+      fields.forEach( element => {
+            var name = element.name;
+
+            if (name.indexOf("_spid") !== -1) {
+                element.value = options.spreadsheetId;
+            }
+
+            if (name.indexOf("tabName") !== -1) {
+                element.value = options.tabName
+            }
+
+        });
+    }
+
+    resetSheetPickerToFolderRoot() {
+        this._pickerView = "folders";
+        this._sheetsInCurrentFolder = [];
+        this._currentFolderName = "";
+    }
+
+    sheetPickHandler(e) {
+        e.preventDefault();
+
+        var nodo = e.currentTarget;
+        var sheetName = nodo.textContent;
+        var spreadsheetId = nodo.dataset.spreadsheetId;
+
+        var tabList = (this._sheetsInCurrentFolder || []).find(function(item) {
+            return item.id == spreadsheetId;
+        });
+
+        if (!tabList) {
+            console.error("No se encontro spreadsheet:", spreadsheetId);
+            return;
+        }
+
+        var firstTabName =
+            tabList.tabs && tabList.tabs[0] && tabList.tabs[0].name
+                ? tabList.tabs[0].name
+                : "";
+
+        this.saveMemo({
+            keyMemo: this.getKeyName(),
+            spreadsheetId: spreadsheetId,
+            name: sheetName,
+            tabs: tabList.tabs
+        });
+
+        this.printHtmlConfigVars({ spreadsheetId: spreadsheetId, tabName: firstTabName });
+
+        if (this.openSheetPickerBtn) {
+            this.openSheetPickerBtn.textContent = sheetName;
+        }
+
+        if (this.sheetPickerModal && typeof jQuery !== "undefined") {
+            jQuery(this.sheetPickerModal).modal("hide");
+        }
+    }
+
+    loadSheetsForFolder(folderId, folderName) {
+        if (typeof google === "undefined" || !google.script || !google.script.run) {
+            console.error("[ConfigForm] google.script.run no disponible.");
+            return;
+        }
+
+        var self = this;
+        this.sheetListEl.innerHTML = "";
+
+        var loading = document.createElement("div");
+        loading.className = "list-group-item text-muted small";
+        loading.textContent = "Cargando hojas de cálculo…";
+        this.sheetListEl.appendChild(loading);
+
+        google.script.run
+            .withSuccessHandler(function (list) {
+                self._pickerView = "sheets";
+                self._sheetsInCurrentFolder = Array.isArray(list) ? list : [];
+                self._currentFolderName = folderName || "";
+                self.renderSheetPickerContent();
+            })
+            .withFailureHandler(function (err) {
+                console.error("[ConfigForm] listSpreadSheetsInFolder:", err);
+                self.sheetListEl.innerHTML = "";
+                var errEl = document.createElement("div");
+                errEl.className = "list-group-item text-danger small";
+                errEl.textContent =
+                    (err && err.message) || "No se pudieron cargar las hojas de esta carpeta.";
+                self.sheetListEl.appendChild(errEl);
+                var back = self.createBackToFoldersButton();
+                self.sheetListEl.appendChild(back);
+            })
+            .listSpreadSheetsInFolder(folderId);
+    }
+
+    createBackToFoldersButton() {
+        var self = this;
+        var back = document.createElement("button");
+        back.type = "button";
+        back.className =
+            "list-group-item list-group-item-action list-group-item-light font-weight-bold text-left";
+        back.textContent = "← Volver a carpetas";
+        back.addEventListener("click", function (e) {
+            e.preventDefault();
+            self.resetSheetPickerToFolderRoot();
+            self.renderSheetPickerContent();
+        });
+        return back;
+    }
+
+    populateSheetPickerList() {
+        if (!this.sheetListEl) return;
+
+        this.resetSheetPickerToFolderRoot();
+        this.renderSheetPickerContent();
+    }
+
+   
+
+    getFields() {
+        if (!this.nodo) return null;
+
+        var fields = this.nodo.querySelectorAll("input");
+        if (!fields.length) return null;
+
+        var data = {};
+
+        fields.forEach(function(el) {
+            data[el.name] = el.value;
+        });
+
+        return data;
+    }
+
+    
+    saveMemo(option) {
+        if (!option) return false;
+
+        var keyMemo = option.keyMemo || this.getKeyName();
+        if (!keyMemo) return false;
+
+        var payload = Object.assign({}, option);
+        delete payload.keyMemo;
+
+        localStorage.setItem(keyMemo, JSON.stringify(payload));
+
+        this.showNotification("Configuracion guardada");
+        return true;
+    }
+
+    /**
+     * @param {boolean} visibility
+     * @param {boolean} [_automatic] Deprecado: no se usa; conservado por compatibilidad con llamadas existentes.
+     */
+    toggleVisibility( visibility, automatic = false ){
+
+        if (!this.nodo) {
+            console.error("[ConfigForm.toggleVisibility] Falta `this.nodo` (DOM).");
+            return false;
+        }
+        const inputs = this.nodo.querySelectorAll?.("input");
+        const label = this.nodo.querySelectorAll?.("label");
+        const button = this.nodo.querySelector?.("button.save");
+        const configFormTextFields = this.nodo.querySelector?.(".config-form-text-fields");
+
+        if (!inputs || !label || !button) {
+            console.error("[ConfigForm.toggleVisibility] Elementos del DOM faltantes.", {
+                hasInputs: Boolean(inputs),
+                hasLabels: Boolean(label),
+                hasSaveButton: Boolean(button),
+                css_selector: this.css_selector,
+            });
+            return false;
+        }
+
+
+        if( visibility == false ){
+            configFormTextFields.classList.add("d-none");
+        } 
+
+        if( visibility == true ){
+            configFormTextFields.classList.toggle("d-none");
+        }
+
+    
+
+        return true;
+    }
+
+    activeLinks(){
+
+        const link = this.nodo.querySelector("a");
+        if (!link) {
+            console.error("[ConfigForm.activeLinks] No se encontró el enlace con clase `.stretched-link` en el DOM.");
+            return false;
+        }
+
+        let spreadsheetId = null;
+
+        if( this.getMemo() && this.getMemo().hasOwnProperty("spreadsheetId") ){
+            spreadsheetId = this.getMemo().spreadsheetId;
+        } else {
+            console.error("[ConfigForm.activeLinks] No se encontró `spreadsheetId` en el memo.");
+            return false;
+
+        }
+
+        link.setAttribute("href", "https://docs.google.com/spreadsheets/d/" + spreadsheetId );
+        link.removeAttribute("disabled");
+
+        return true;
+    }
+
+    activeButton(){
+       if (!this.nodo) {
+            console.error("[ConfigForm.activeButton] Falta `this.nodo` (DOM).");
+            return false;
+       }
+       this.activeSaveButton();
+       this.activeConfButton();
+       this.activeLinks();
+       return true;
+    }
+
+    toggleVisibilityBox( id_box ){
+        if (!id_box || typeof id_box !== "string") {
+            console.error("[ConfigForm.toggleVisibilityBox] Parámetro `id_box` inválido.", { id_box });
+            return false;
+        }
+        const box = document?.querySelector?.( id_box ) || null;
+        if (!box) {
+            console.error("[ConfigForm.toggleVisibilityBox] No se encontró el box en el DOM.", { id_box });
+            return false;
+        }
+        const memo = this.getMemo();
+
+        if( memo == null ){
+            box.classList.add("d-none");
+            return false;
+        }
+
+        const elMunicipio = box.querySelector?.(".config-municipio") || null;
+        const elCodigo = box.querySelector?.(".config-codigo") || null;
+        const elEjercicio = box.querySelector?.(".config-ejercicio") || null;
+        const elPeriodo = box.querySelector?.(".config-periodo") || null;
+
+        if (!elMunicipio || !elCodigo || !elEjercicio || !elPeriodo) {
+            console.error("[ConfigForm.toggleVisibilityBox] Faltan elementos internos del box.", {
+                id_box,
+                hasMunicipio: Boolean(elMunicipio),
+                hasCodigo: Boolean(elCodigo),
+                hasEjercicio: Boolean(elEjercicio),
+                hasPeriodo: Boolean(elPeriodo),
+            });
+            return false;
+        }
+
+        elMunicipio.textContent = memo["staticsFields[municipioNombre]"] ?? "";
+        elCodigo.textContent = "(" + (memo["staticsFields[municipio]"] ?? "") + ")";
+        elEjercicio.textContent = memo["staticsFields[ejercicio]"] ?? "";
+        elPeriodo.textContent = memo["staticsFields[periodo]"] ?? "";
+
+        return true;
+
+    }
+
+    activeSaveButton(){
+        if (!this.nodo) {
+            console.error("[ConfigForm.activeSaveButton] Falta `this.nodo` (DOM).");
+            return false;
+        }
+        const button = this.nodo.querySelector?.("button.save");
+        if (!button) {
+            console.error("[ConfigForm.activeSaveButton] Falta botón `button.save` en el DOM.", {
+                css_selector: this.css_selector,
+            });
+            return false;
+        }
+        button.addEventListener("click", ( e ) => {
+            console.log("Obteniendo campos");
+            const fieldsList = this.getFields();
+            if (!fieldsList) {
+                console.error("[ConfigForm.activeSaveButton/click] No se pudieron obtener los campos para guardar.");
+                return;
+            }
+            this.saveMemo( fieldsList );
+        });
+        return true;
+    }
+
+    activeConfButton(){
+        if (!this.nodo) {
+            console.error("[ConfigForm.activeConfButton] Falta `this.nodo` (DOM).");
+            return false;
+        }
+        const button = this.nodo.querySelector?.("button.edit-config");
+        if (!button) {
+            console.error("[ConfigForm.activeConfButton] Falta botón `button.confs` en el DOM.", {
+                css_selector: this.css_selector,
+            });
+            return false;
+        }
+        button.addEventListener('click', () => {
+             this.toggleVisibility( true, true );
+        });
+        return true;
+    }
+
+    /**
+     * Lista carpetas u hojas en el modal del picker (incluye buscador).
+     * Nota: antes existía otra definición duplicada de este método (sin buscador); en una clase ES6 solo
+     * aplica la última, así que aquella era código muerto y se eliminó.
+     */
+    renderSheetPickerContent() {
+        if (!this.sheetListEl) return;
+    
+        this.sheetListEl.innerHTML = "";
+    
+        // 1. Crear el contenedor del buscador
+        const searchContainer = document.createElement("div");
+        searchContainer.className = "p-2 sticky-top bg-white border-bottom";
+        
+        const searchInput = document.createElement("input");
+        searchInput.type = "text";
+        searchInput.placeholder = "Buscar...";
+        searchInput.className = "form-control form-control-sm";
+        searchInput.value = this._currentSearchTerm || ""; // Mantener el texto si se re-renderiza
+        
+        // Evento de búsqueda en tiempo real
+        searchInput.addEventListener("input", (e) => {
+            this._currentSearchTerm = e.target.value.toLowerCase();
+            this.renderSheetPickerContent(); // Re-renderizamos para aplicar el filtro
+        });
+    
+        searchContainer.appendChild(searchInput);
+        this.sheetListEl.appendChild(searchContainer);
+    
+        // Foco automático al buscador si estamos escribiendo
+        if (this._currentSearchTerm) {
+            setTimeout(() => searchInput.focus(), 0);
+        }
+    
+        const searchTerm = this._currentSearchTerm || "";
+    
+        // --- MODO VISTA DE HOJAS (SHEETS) ---
+        if (this._pickerView === "sheets") {
+            this.sheetListEl.appendChild(this.createBackToFoldersButton());
+    
+            const list = this._sheetsInCurrentFolder.filter(item => 
+                (item.name || "").toLowerCase().includes(searchTerm)
+            );
+    
+            if (list.length === 0) {
+                this.renderEmptyMessage("No se encontraron resultados.");
+                return;
+            }
+
+            let fileIcon =            '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">';
+                fileIcon = fileIcon + '<path d="M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H12M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19M19 9V14.5M9 17H11.5M9 13H15M9 9H10M15.5 18.5H20.5" stroke="#0AC4E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+                fileIcon = fileIcon + '</svg>';
+
+            let folderIconNested =           '<svg width="1em" height="1em" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">';
+            folderIconNested = folderIconNested +  '<path d="M0 1H5L8 3H13V5H3.7457L2.03141 11H4.11144L5.2543 7H16L14 14H0V1Z" fill="#0992C2"/>';
+            folderIconNested = folderIconNested +  '</svg>';
+    
+            list.forEach(item => {
+                if (!item || !item.id) return;
+                if (item.isFolder) {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className =
+                        "list-group-item list-group-item-action text-left sheet-picker-folder d-flex justify-content-between";
+                    btn.innerHTML = (item.name || item.id) + folderIconNested;
+                    btn.dataset.folderId = item.id;
+                    btn.setAttribute("aria-label", "Abrir subcarpeta " + (item.name || item.id));
+                    btn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        this._currentSearchTerm = "";
+                        this.loadSheetsForFolder(item.id, item.name);
+                    });
+                    this.sheetListEl.appendChild(btn);
+                    return;
+                }
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "list-group-item list-group-item-action text-left d-flex justify-content-between ";
+                btn.innerHTML = ( item.name || item.id ) + fileIcon ;
+                btn.dataset.spreadsheetId = item.id;
+                btn.addEventListener("click", (e) => this.sheetPickHandler(e));
+                this.sheetListEl.appendChild(btn);
+            });
+            return;
+        }
+    
+        // --- MODO VISTA DE CARPETAS (FOLDERS) ---
+        let folders = window.contabilidadDriveFolders;
+    
+        if (folders === undefined) {
+            this.renderEmptyMessage("Cargando carpetas...", "text-muted");
+            return;
+        }
+    
+        if (folders === null) {
+            this.renderEmptyMessage("No se pudieron cargar las carpetas.", "text-danger");
+            return;
+        }
+    
+        // Filtrar carpetas por el buscador
+        const filteredFolders = folders.filter(f => 
+            (f.name || "").toLowerCase().includes(searchTerm)
+        );
+    
+        if (filteredFolders.length === 0) {
+            this.renderEmptyMessage("No coinciden carpetas.");
+            return;
+        }
+    
+        filteredFolders.forEach(item => {
+            if (!item || !item.id) return;
+
+            let folderIcon =           '<svg width="1em" height="1em" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">';
+            folderIcon = folderIcon +  '<path d="M0 1H5L8 3H13V5H3.7457L2.03141 11H4.11144L5.2543 7H16L14 14H0V1Z" fill="#0992C2"/>';
+            folderIcon = folderIcon +  '</svg>';
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "list-group-item list-group-item-action text-left sheet-picker-folder d-flex justify-content-between";
+            btn.innerHTML = (  item.name || item.id ) + folderIcon ;
+            btn.dataset.folderId = item.id;
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                this._currentSearchTerm = ""; // Limpiamos buscador al entrar a una carpeta
+                this.loadSheetsForFolder(item.id, item.name);
+            });
+            this.sheetListEl.appendChild(btn);
+        });
+    }
+    
+    // Función auxiliar para mensajes vacíos (opcional, para limpiar el código)
+    renderEmptyMessage(text, textClass = "text-muted") {
+        const empty = document.createElement("div");
+        empty.className = `list-group-item small ${textClass}`;
+        empty.textContent = text;
+        this.sheetListEl.appendChild(empty);
+    }
+
+    showNotification(msg) {
+        if (typeof Toastify === "undefined") {
+            console.log("Toast:", msg);
+            return;
+        }
+
+        Toastify({
+            text: msg,
+            duration: 3000,
+            gravity: "top",
+            position: "left",
+            style: {
+                background: "#0AC4E0"
+            }
+        }).showToast();
+    }
+
+    mostrarModalBusqueda(memo) {
+
+        console.log( "mostrarModalBusqueda" );
+        var modalEl = document.getElementById('modalBusquedaLibroDiario');
+        const btnBuscarLibroDiario = document.querySelector("#btnBuscarLibroDiario");
+
+         console.log('modalEl', modalEl );
+
+        // Referencias y Eventos
+        var btnEjecutar = modalEl.querySelector("#btnEjecutarBusqueda");
+        var inputBusqueda = modalEl.querySelector("#inputCriterioBusqueda");
+        var contenedorResultados = modalEl.querySelector("#resultadosBusqueda");
+
+        
+    }
+
+}

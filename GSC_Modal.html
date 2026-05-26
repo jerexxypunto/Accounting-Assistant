@@ -1,0 +1,532 @@
+class GSC_Modal{
+    constructor(){
+
+    }
+
+    _isNonEmptyString(value){
+        return typeof value === "string" && value.trim().length > 0;
+    }
+
+    _error(method, message, context = {}){
+        console.error(`[GSC_Modal.${method}] ${message}`, context);
+        return false;
+    }
+
+    addButton( button_text, id, dataTarget ){
+        if (typeof document === "undefined" || !document?.createElement) {
+            return this._error("addButton", "DOM no disponible (document inexistente).");
+        }
+        if (!this._isNonEmptyString(button_text)) {
+            return this._error("addButton", "Falta o es inválido `button_text`.", { button_text });
+        }
+        if (!this._isNonEmptyString(id)) {
+            return this._error("addButton", "Falta o es inválido `id`.", { id });
+        }
+        if (!this._isNonEmptyString(dataTarget)) {
+            return this._error("addButton", "Falta o es inválido `dataTarget`.", { dataTarget });
+        }
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.id = id;
+        button.className = "btn btn-primary mb-2";
+        button.setAttribute("data-toggle", "modal");
+        button.setAttribute("data-target", dataTarget);
+        button.textContent = button_text;
+
+        const nodo = document.querySelector?.(".actions-panel .actions-buttons") || null;
+        if (!nodo) {
+            this._error("addButton", "No se encontr? el contenedor `.actions-panel .actions-buttons` en el DOM.", {
+                selector: ".actions-panel .actions-buttons",
+                id,
+                dataTarget
+            });
+            return null;
+        }
+        nodo.appendChild(button);
+        return button;
+    }
+
+    configFormAddButton( button_text, id, dataTarget, configForm ){
+        if (typeof document === "undefined" || !document?.createElement) {
+            return this._error("addButton", "DOM no disponible (document inexistente).");
+        }
+        if (!this._isNonEmptyString(button_text)) {
+            return this._error("addButton", "Falta o es inválido `button_text`.", { button_text });
+        }
+        if (!this._isNonEmptyString(id)) {
+            return this._error("addButton", "Falta o es inválido `id`.", { id });
+        }
+        if (!this._isNonEmptyString(dataTarget)) {
+            return this._error("addButton", "Falta o es inválido `dataTarget`.", { dataTarget });
+        }
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.id = id;
+        button.className = "btn btn-primary";
+        button.setAttribute("data-toggle", "modal");
+        button.setAttribute("data-target", dataTarget);
+        button.innerHTML = button_text;
+
+        const nodo = document.querySelector?.( configForm + " .form-group" ) || null;
+        if (!nodo) {
+            this._error("addButton", "No se encontr? el contenedor `.actions-panel .actions-buttons` en el DOM.", {
+                selector: ".actions-panel .actions-buttons",
+                id,
+                dataTarget
+            });
+            return null;
+        }
+        nodo.appendChild(button);
+        return button;
+    }
+
+    addModal( title, body, id ){
+        if (typeof document === "undefined" || !document?.createElement) {
+            return this._error("addModal", "DOM no disponible (document inexistente).");
+        }
+        if (!this._isNonEmptyString(id)) {
+            return this._error("addModal", "Falta o es inválido `id`.", { id });
+        }
+        if (document.getElementById?.(id)) {
+            // No duplicar modales; evita errores de IDs repetidos
+            this._error("addModal", "Ya existe un modal con ese id. Se omite creaci?n.", { id });
+            return false;
+        }
+
+        const modal = document.createElement("div");
+        modal.className = "modal fade";
+        modal.id = id;
+        modal.setAttribute("data-backdrop", "static");
+        modal.setAttribute("data-keyboard", "false");
+        modal.tabIndex = -1;
+        modal.setAttribute("aria-labelledby", "staticBackdropLabel");
+        modal.setAttribute("aria-hidden", "true");
+
+        const modalDialog = document.createElement("div");
+        modalDialog.className = "modal-dialog";
+
+        const modalContent = document.createElement("div");
+        modalContent.className = "modal-content";
+
+        const modalHeader = document.createElement("div");
+        modalHeader.className = "modal-header";
+
+        const modalTitle = document.createElement("h5");
+        modalTitle.className = "modal-title";
+        modalTitle.id = "staticBackdropLabel";
+        modalTitle.textContent = title || "Modal title";
+
+        const closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.className = "close";
+        closeBtn.setAttribute("data-dismiss", "modal");
+        closeBtn.setAttribute("aria-label", "Close");
+        const closeSpan = document.createElement("span");
+        closeSpan.setAttribute("aria-hidden", "true");
+        closeSpan.textContent = "?";
+        closeBtn.appendChild(closeSpan);
+
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(closeBtn);
+
+        const modalBody = document.createElement("div");
+        modalBody.className = "modal-body";
+        if (typeof body === "string") {
+            modalBody.innerHTML = body;
+        } else if (body instanceof Node) {
+            modalBody.appendChild(body);
+        } else if (body != null) {
+            this._error("addModal", "Par?metro `body` inválido (debe ser string o Node). Se renderiza vac?o.", { bodyType: typeof body });
+        }
+
+        const modalFooter = document.createElement("div");
+        modalFooter.className = "modal-footer";
+
+        const closeFooterBtn = document.createElement("button");
+        closeFooterBtn.type = "button";
+        closeFooterBtn.className = "btn btn-secondary";
+        closeFooterBtn.setAttribute("data-dismiss", "modal");
+        closeFooterBtn.textContent = "Close";
+
+        const understoodBtn = document.createElement("button");
+        understoodBtn.type = "button";
+        understoodBtn.className = "btn btn-primary";
+        understoodBtn.textContent = "Enviar";
+        understoodBtn.setAttribute("data-dismiss", "modal")
+
+        modalFooter.appendChild(closeFooterBtn);
+        modalFooter.appendChild(understoodBtn);
+
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(modalBody);
+        modalContent.appendChild(modalFooter);
+        modalDialog.appendChild(modalContent);
+        modal.appendChild(modalDialog);
+
+        if (!document.body?.appendChild) {
+            return this._error("addModal", "No existe `document.body` para insertar el modal.", { id });
+        }
+        document.body.appendChild(modal);
+        return true;
+    }
+
+    /**
+     * Inserta en `parentEl` un modal Bootstrap 4 para elegir un ?tem de lista (p. ej. hojas de c?lculo).
+     * Pie solo con ?Cerrar?. Devuelve el contenedor `.sheet-picker-list` para poblar desde ConfigForm.
+     */
+    appendSheetPickerModal(parentEl, modalId, title) {
+        if (typeof document === "undefined" || !document?.createElement) {
+            return this._error("appendSheetPickerModal", "DOM no disponible (document inexistente).");
+        }
+        if (!parentEl || !(parentEl instanceof Node)) {
+            return this._error("appendSheetPickerModal", "`parentEl` inválido.", { parentEl });
+        }
+        if (!this._isNonEmptyString(modalId)) {
+            return this._error("appendSheetPickerModal", "Falta o es inválido `modalId`.", { modalId });
+        }
+        if (document.getElementById?.(modalId)) {
+            this._error("appendSheetPickerModal", "Ya existe un elemento con ese id.", { modalId });
+            return null;
+        }
+
+        const modal = document.createElement("div");
+        modal.className = "modal fade sheet-picker-modal";
+        modal.id = modalId;
+        modal.setAttribute("tabindex", "-1");
+        modal.setAttribute("role", "dialog");
+        modal.setAttribute("aria-labelledby", modalId + "Label");
+        modal.setAttribute("aria-hidden", "true");
+
+        const dialog = document.createElement("div");
+        dialog.className = "modal-dialog modal-dialog-scrollable";
+        dialog.setAttribute("role", "document");
+
+        const content = document.createElement("div");
+        content.className = "modal-content";
+
+        const header = document.createElement("div");
+        header.className = "modal-header";
+
+        const h = document.createElement("h5");
+        h.className = "modal-title";
+        h.id = modalId + "Label";
+        h.textContent = title || "Seleccionar";
+
+        const closeHeader = document.createElement("button");
+        closeHeader.type = "button";
+        closeHeader.className = "close";
+        closeHeader.setAttribute("data-dismiss", "modal");
+        closeHeader.setAttribute("aria-label", "Cerrar");
+        const closeSpan = document.createElement("span");
+        closeSpan.setAttribute("aria-hidden", "true");
+        closeSpan.textContent = "?";
+        closeHeader.appendChild(closeSpan);
+
+        header.appendChild(h);
+        header.appendChild(closeHeader);
+
+        const body = document.createElement("div");
+        body.className = "modal-body py-2";
+
+        const listEl = document.createElement("div");
+        listEl.className = "list-group list-group-flush sheet-picker-list";
+        body.appendChild(listEl);
+
+        const footer = document.createElement("div");
+        footer.className = "modal-footer";
+
+        const closeFooter = document.createElement("button");
+        closeFooter.type = "button";
+        closeFooter.className = "btn btn-secondary";
+        closeFooter.setAttribute("data-dismiss", "modal");
+        closeFooter.textContent = "Cerrar";
+
+        footer.appendChild(closeFooter);
+
+        content.appendChild(header);
+        content.appendChild(body);
+        content.appendChild(footer);
+        dialog.appendChild(content);
+        modal.appendChild(dialog);
+        parentEl.appendChild(modal);
+
+        return { modal, listEl };
+    }
+
+    createContactModalWithButton(buttonText, buttonId, modalId, modalTitle , callBack ) {
+        if (typeof document === "undefined" || !document?.createElement) {
+            this._error("createContactModalWithButton", "DOM no disponible (document inexistente).");
+            return { error: "DOM no disponible" };
+        }
+        if (!this._isNonEmptyString(buttonText)) {
+            this._error("createContactModalWithButton", "Falta o es inválido `buttonText`.", { buttonText });
+            return { error: "buttonText inválido" };
+        }
+        if (!this._isNonEmptyString(buttonId)) {
+            this._error("createContactModalWithButton", "Falta o es inválido `buttonId`.", { buttonId });
+            return { error: "buttonId inválido" };
+        }
+        if (!this._isNonEmptyString(modalId)) {
+            this._error("createContactModalWithButton", "Falta o es inválido `modalId`.", { modalId });
+            return { error: "modalId inválido" };
+        }
+        if (callBack && typeof callBack !== "function") {
+            this._error("createContactModalWithButton", "`callBack` debe ser función.", { callBackType: typeof callBack });
+            return { error: "callBack inválido" };
+        }
+
+        const form = document.createElement("form");
+        form.setAttribute("novalidate", "novalidate");
+
+        const emailGroup = document.createElement("div");
+        emailGroup.className = "form-group";
+        const emailLabel = document.createElement("label");
+        emailLabel.setAttribute("for", "contact-email");
+        emailLabel.textContent = "Correo electrónico";
+        const emailInput = document.createElement("input");
+        emailInput.type = "email";
+        emailInput.className = "form-control";
+        emailInput.id = "contact-email";
+        emailInput.placeholder = "tu@correo.com";
+        emailInput.required = true;
+        emailInput.autocomplete = "email";
+        emailGroup.appendChild(emailLabel);
+        emailGroup.appendChild(emailInput);
+
+        form.appendChild(emailGroup);
+
+        const button = this.addButton(
+            buttonText,
+            buttonId,
+            `#${modalId}`
+        );
+
+        if (!button) {
+            this._error("createContactModalWithButton", "No se pudo crear el botón (contenedor o parámetros inválidos).", { buttonId, modalId });
+            return { error: "No se pudo crear el bot?n", form, emailInput };
+        }
+
+        const modalOk = this.addModal(
+            modalTitle || "Contacto",
+            form,
+            modalId
+        );
+        if (modalOk === false) {
+            this._error("createContactModalWithButton", "No se pudo crear el modal.", { modalId });
+            return { error: "No se pudo crear el modal", button, form, emailInput };
+        }
+
+        const modalElement = document.getElementById(modalId);
+        if (modalElement) {
+            const understoodBtn = modalElement.querySelector(".modal-footer .btn.btn-primary");
+            if (understoodBtn) {
+                understoodBtn.addEventListener("click", () => {
+                    const emailValue = (emailInput?.value || "").trim();
+                    if (emailValue.length === 0) {
+                        this._error("createContactModalWithButton/click", "El correo es obligatorio.", { modalId, buttonId });
+                        return;
+                    }
+                    // Validaci?n b?sica de email; el input type=email no siempre bloquea por s? solo
+                    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue);
+                    if (!isEmail) {
+                        this._error("createContactModalWithButton/click", "Formato de correo inválido.", { emailValue });
+                        return;
+                    }
+                    try {
+                        console.log("Correo de contacto:", emailValue);
+                        if (typeof callBack === "function") callBack({ emailValue });
+                    } catch (err) {
+                        this._error("createContactModalWithButton/click", "Error ejecutando callBack.", { err });
+                    }
+                });
+            } else {
+                this._error("createContactModalWithButton", "No se encontró el botón de acción en el footer del modal.", {
+                    modalId,
+                    selector: ".modal-footer .btn.btn-primary"
+                });
+            }
+        } else {
+            this._error("createContactModalWithButton", "No se encontró el modal en el DOM tras crearlo.", { modalId });
+        }
+
+        return { button, form, emailInput };
+    }
+
+    /**
+     * Crea un modal de búsqueda para el Libro Diario con un input de texto y un botón de buscar.
+     * Vincula el evento de búsqueda al hacer clic en "Buscar" o presionar "Enter" en el input.
+     */
+     createLibroDiarioSearchModal(buttonText, buttonId, modalId, modalTitle, onSearchCallback, onSendReportCallback ) {
+        console.log('Init createLibroDiarioSearchModal');
+        if (typeof document === "undefined" || !document?.createElement) {
+            this._error("createLibroDiarioSearchModal", "DOM no disponible (document inexistente).");
+            return { error: "DOM no disponible" };
+        }
+        if (!this._isNonEmptyString(buttonText)) {
+            this._error("createLibroDiarioSearchModal", "Falta o es inválido `buttonText`.", { buttonText });
+            return { error: "buttonText inválido" };
+        }
+        if (!this._isNonEmptyString(buttonId)) {
+            this._error("createLibroDiarioSearchModal", "Falta o es inválido `buttonId`.", { buttonId });
+            return { error: "buttonId inválido" };
+        }
+        if (!this._isNonEmptyString(modalId)) {
+            this._error("createLibroDiarioSearchModal", "Falta o es inválido `modalId`.", { modalId });
+            return { error: "modalId inválido" };
+        }
+        if (onSearchCallback && typeof onSearchCallback !== "function") {
+            this._error("createLibroDiarioSearchModal", "`onSearchCallback` debe ser función.", { callbackType: typeof onSearchCallback });
+            return { error: "onSearchCallback inválido" };
+        }
+
+        console.log('Comienza a ejecutar createLibroDiarioSearchModal');
+
+        // 1. Crear el contenedor del formulario
+        const form = document.createElement("form");
+        form.setAttribute("novalidate", "novalidate");
+        // Evitar que el formulario recargue la página si se presiona Enter de forma global
+        form.addEventListener("submit", (e) => e.preventDefault());
+
+        // El icono SVG para el botón de búsqueda rápida de cada campo
+        const searchIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>`;
+
+        // Configuración de los campos requeridos
+        const campos = [
+            { id: "glosa", label: "Glosa asiento", placeholder: "Ej: Pago de facturas..." },
+            { id: "cuenta-nombre", label: "Nombre cuenta", placeholder: "Ej: Caja Chica, Banco..." },
+            { id: "cuenta-codigo", label: "Código cuenta", placeholder: "Ej: 1.1.01..." }
+        ];
+
+        // Objeto para almacenar las referencias de los inputs y poder usarlos al retornar
+        const searchInputs = {};
+
+        campos.forEach(campo => {
+            const fieldId = `search-${campo.id}-${modalId}`;
+
+            const searchGroup = document.createElement("div");
+            searchGroup.className = "form-group mb-3";
+
+            const searchLabel = document.createElement("label");
+            searchLabel.setAttribute("for", fieldId);
+            searchLabel.className = "font-weight-bold font-size-sm";
+            searchLabel.textContent = campo.label;
+
+            // Creamos un input-group de Bootstrap para poner el botón al lado del input
+            const inputGroup = document.createElement("div");
+            inputGroup.className = "input-group";
+
+            const searchInput = document.createElement("input");
+            searchInput.type = "text";
+            searchInput.className = "form-control";
+            searchInput.id = fieldId;
+            searchInput.placeholder = campo.placeholder;
+            searchInput.autocomplete = "off";
+            
+            // Guardar referencia del input
+            searchInputs[campo.id] = searchInput;
+
+            // Contenedor del botón (Bootstrap append)
+            const inputGroupAppend = document.createElement("div");
+            inputGroupAppend.className = "input-group-append";
+
+            const inlineSearchBtn = document.createElement("button");
+            inlineSearchBtn.type = "button";
+            inlineSearchBtn.className = "btn btn-outline-secondary";
+            inlineSearchBtn.title = `Buscar por ${campo.label}`;
+            inlineSearchBtn.innerHTML = searchIconSVG;
+
+            // Evento para el botón específico de este campo
+            inlineSearchBtn.addEventListener("click", () => {
+                const queryValue = searchInput.value.trim();
+                try {
+                    console.log(`Búsqueda individual por [${campo.label}]:`, queryValue);
+                    if (typeof onSearchCallback === "function") {
+                        // Enviamos el valor y especificamos qué campo lo disparó
+                        onSearchCallback({ query: queryValue, field: campo.id });
+                    }
+                } catch (err) {
+                    this._error("createLibroDiarioSearchModal/inlineSearch", "Error en callback individual.", { err });
+                }
+            });
+
+            // Evento Enter para este input en particular
+            searchInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    inlineSearchBtn.click();
+                }
+            });
+
+            // Armar la estructura del campo
+            inputGroupAppend.appendChild(inlineSearchBtn);
+            inputGroup.appendChild(searchInput);
+            inputGroup.appendChild(inputGroupAppend);
+
+            searchGroup.appendChild(searchLabel);
+            searchGroup.appendChild(inputGroup);
+            form.appendChild(searchGroup);
+        });
+
+        // 2. Crear el botón disparador usando el método existente de la clase
+        const button = this.configFormAddButton(
+            buttonText,
+            buttonId,
+            `#${modalId}`,
+            '.config-librio-diario'
+        );
+        if (!button) {
+            this._error("createLibroDiarioSearchModal", "No se pudo crear el botón (contenedor o parámetros inválidos).", { buttonId, modalId });
+            return { error: "No se pudo crear el botón", form, searchInputs };
+        }
+
+        // 3. Crear el modal usando el método existente
+        const modalOk = this.addModal(
+            modalTitle || "Buscar en Libro Diario",
+            form,
+            modalId
+        );
+
+        if (modalOk === false) {
+            this._error("createLibroDiarioSearchModal", "No se pudo crear el modal.", { modalId });
+            return { error: "No se pudo crear el modal", button, form, searchInputs };
+        }
+
+        // 4. Modificar el botón de acción principal ("Enviar" por defecto en el footer del modal)
+        const modalElement = document.getElementById(modalId);
+        if (modalElement) {
+            const searchBtn = modalElement.querySelector(".modal-footer .btn.btn-primary");
+            if (searchBtn) {
+                searchBtn.textContent = "Enviar Reporte";
+                
+                // Acción para el botón global "Buscar" del footer (procesa todos los campos a la vez)
+                searchBtn.addEventListener("click", () => {
+                    try {
+                        if (typeof onSendReportCallback === "function") {
+                            onSendReportCallback({
+                                query: {
+                                    glosa: searchInputs["glosa"].value.trim(),
+                                    nombreCuenta: searchInputs["cuenta-nombre"].value.trim(),
+                                    codigoCuenta: searchInputs["cuenta-codigo"].value.trim()
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        this._error("createLibroDiarioSearchModal/search", "Error ejecutando onSearchCallback global.", { err });
+                    }
+                });
+            } else {
+                this._error("createLibroDiarioSearchModal", "No se encontró el botón de acción en el footer del modal.", {
+                    modalId,
+                    selector: ".modal-footer .btn.btn-primary"
+                });
+            }
+        } else {
+            this._error("createLibroDiarioSearchModal", "No se encontró el modal en el DOM tras crearlo.", { modalId });
+        }
+
+        console.log('Termina a ejecutar createLibroDiarioSearchModal');
+
+        return { button, form, searchInputs };
+    }
+}

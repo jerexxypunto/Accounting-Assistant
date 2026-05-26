@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auditoría de Horas Extras</title>
+  <style type="text/css">
+    /* Reset para clientes de correo */
+    body, table, td, p, a, li, blockquote {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table, td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+      border: 0;
+      outline: none;
+      text-decoration: none;
+    }
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: #e8e8e8;
+    }
+  </style>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td, p { font-family: Arial, sans-serif !important; }
+  </style>
+  <![endif]-->
+</head>
+<body style="margin:0; padding:0; background-color:#e8e8e8;">
+
+<!-- Wrapper -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#e8e8e8;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+
+      <!-- Main container -->
+      <table border="0" cellpadding="0" cellspacing="0" width="800" style="max-width:800px; background-color:#ffffff; border:1px solid #bbbbbb; border-collapse:collapse; box-shadow:4px 4px 0px #aaaaaa;">
+
+        <!-- ROW 1: Título -->
+        <tr>
+          <td colspan="4" align="center" bgcolor="#1a3c6b" style="background-color:#1a3c6b; padding:14px 20px; border-bottom:3px solid #c0392b;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:17px; font-weight:bold; color:#ffffff; letter-spacing:2px; text-transform:uppercase;">
+              REVISION DE REMUNERACIONES BRUTAS MENSUALIZADAS Y HORAS EXTRAS DEL PERSONAL  DE PLANTA Y A CONTRATA - <?= mesAuditoria ?> <?= anioAuditoria ?>
+            </p>
+          </td>
+        </tr>
+
+        <!-- ROW 2: Municipalidad -->
+        <tr>
+          <td colspan="4" align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:14px 20px 2px;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:14px; font-weight:bold; color:#1a3c6b; letter-spacing:0.5px;">
+              <?= municipalidadTitle ?>
+            </p>
+          </td>
+        </tr>
+
+        <!-- ROW 3: Generado -->
+        <tr>
+          <td colspan="4" align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:2px 20px 14px;">
+            <p style="margin:0; font-family:'Courier New', Courier, monospace; font-size:11px; color:#777777;">
+              Generado: <?= dateGenerated ?>
+            </p>
+          </td>
+        </tr>
+
+        <!-- ROW 4: Alerta -->
+        <tr>
+          <td colspan="4" align="center" bgcolor="#c0392b" style="background-color:#c0392b; padding:10px 20px;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:12px; font-weight:bold; color:#ffffff; letter-spacing:2px; text-transform:uppercase;">
+              ⚠  SE DETECTÓ DISCREPANCIA SIGNIFICATIVA ENTRE FUENTES OFICIALES
+            </p>
+          </td>
+        </tr>
+
+        <!-- ROW 5: Encabezados columnas -->
+        <tr>
+
+          <td width="15%" align="center">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:bold; color:#ffffff; letter-spacing:2px; text-transform:uppercase;"></p>
+          </td>
+       
+          <td width="33%" align="center" bgcolor="#27ae60" style="background-color:#27ae60; padding:9px 10px; border-top:2px solid #1a3c6b;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:bold; color:#ffffff; letter-spacing:2px; text-transform:uppercase;">Portal Transparencia</p>
+          </td>
+          <td width="33%" align="center" bgcolor="#5d6d7e" style="background-color:#5d6d7e; padding:9px 10px; border-top:2px solid #1a3c6b;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:bold; color:#ffffff; letter-spacing:2px; text-transform:uppercase;">Libro Diario</p>
+          </td>
+          <td width="33%" align="center" bgcolor="#c0392b" style="background-color:#c0392b; padding:9px 10px; border-top:2px solid #1a3c6b;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:bold; color:#ffffff; letter-spacing:2px; text-transform:uppercase;">DIFERENCIA</p>
+          </td>
+        </tr>
+
+        <!-- ROW 6: Valores -->
+        <tr style="border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b;">
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff;  border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b; border-right:1px solid #dddddd;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:bold; color:#1a3c6b;">Remuneraciones brutas mensualizadas</p>
+          </td>
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:18px 10px; border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b; border-right:1px solid #dddddd;">
+            <p style="margin:0; font-family:'Courier New', Courier, monospace; font-size:17px; font-weight:bold; color:#1a3c6b;"><?= portalTransparencia.remuneracion ?></p>
+          </td>
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:18px 10px; border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b; border-right:1px solid #dddddd;">
+            <p style="margin:0; font-family:'Courier New', Courier, monospace; font-size:17px; font-weight:bold; color:#1a3c6b;"><?= libroDiario.remuneracion ?></p>
+          </td>
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:18px 10px; border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b;">
+            <p style="margin:0; font-family:'Courier New', Courier, monospace; font-size:17px; font-weight:bold; color:#c0392b;"><?= diferencia.remuneracion ?></p>
+          </td>
+        </tr>
+        <tr style="border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b;">
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff; border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b; border-right:1px solid #dddddd;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:bold; color:#1a3c6b;">Horas Extras</p>
+          </td>
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:18px 10px; border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b; border-right:1px solid #dddddd;">
+            <p style="margin:0; font-family:'Courier New', Courier, monospace; font-size:17px; font-weight:bold; color:#1a3c6b;"><?= portalTransparencia.extra ?></p>
+          </td>
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:18px 10px; border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b; border-right:1px solid #dddddd;">
+            <p style="margin:0; font-family:'Courier New', Courier, monospace; font-size:17px; font-weight:bold; color:#1a3c6b;"><?= libroDiario.extra ?></p>
+          </td>
+          <td align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:18px 10px; border-top:2px solid #dddddd; border-bottom:3px solid #1a3c6b;">
+            <p style="margin:0; font-family:'Courier New', Courier, monospace; font-size:17px; font-weight:bold; color:#c0392b;"><?= diferencia.extra ?></p>
+          </td>
+        </tr>
+
+        <!-- ROW 7: Insight -->
+        <tr>
+          <td colspan="4" bgcolor="#fef9f0" style="background-color:#fef9f0; padding:12px 20px; border-left:5px solid #e67e22;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:13px; font-weight:bold; color:#c0392b;">
+              <?= mensajeDiferecia ?>
+            </p>
+          </td>
+        </tr>
+
+        <!-- ROW 8: Spacer -->
+        <tr>
+          <td colspan="4" bgcolor="#ffffff" style="background-color:#ffffff; padding:6px 0;"></td>
+        </tr>
+
+        <!-- ROW 10: Bullet 1 -->
+        <? for( let i = 0 ; i < bullets.length; i++ ) {  ?>
+        <tr>
+          <td colspan="4" bgcolor="#ffffff" style="background-color:#ffffff; padding:6px 20px 4px;">
+            <p style="margin:0; font-family:Arial, sans-serif; font-size:12px; color:#333333; line-height:1.5;">
+              <span style="color:#1a3c6b; font-weight:bold;">•</span> <?= bullets[i] ?>
+            </p>
+          </td>
+        </tr>
+        <? } ?>
+
+        <!-- ROW 14: Tabs footer -->
+        <tr style="margin-top:20px;">
+          <td colspan="4" bgcolor="#f0f0f0" style="background-color:#f0f0f0; border-top:2px solid #bbbbbb; padding:0;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td bgcolor="#ffffff" style="background-color:#ffffff; border-top:2px solid #1a3c6b; border-right:1px solid #bbbbbb; padding:8px 22px;">
+                  <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:bold; color:#1a3c6b;">Resumen Ejecutivo</p>
+                </td>
+                <td bgcolor="#f0f0f0" style="background-color:#f0f0f0; border-right:1px solid #bbbbbb; padding:8px 22px;">
+                  <p style="margin:0; font-family:Arial, sans-serif; font-size:11px; font-weight:600; color:#27ae60;"></p>
+                </td>
+                <td bgcolor="#f0f0f0" style="background-color:#f0f0f0; padding:8px 10px;">
+                  <p style="margin:0; font-family:Arial, sans-serif; font-size:16px; color:#888888;">+</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+      </table>
+      <!-- /Main container -->
+
+    </td>
+  </tr>
+</table>
+<!-- /Wrapper -->
+
+</body>
+</html>

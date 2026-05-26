@@ -1,0 +1,12 @@
+const gscAssistantGUI = new GSC_Assitant_GUI();
+window.gscAssistantGUI = gscAssistantGUI;
+
+window.loadContabilidadSpreadsheetListOnce = gscAssistantGUI.loadContabilidadSpreadsheetListOnce.bind(
+    gscAssistantGUI
+);
+
+window.runCruzarPersonal = gscAssistantGUI.runCruzarPersonal.bind(gscAssistantGUI);
+window.runFormatearLibroDiario = gscAssistantGUI.runFormatearLibroDiario.bind(gscAssistantGUI);
+window.runRecopilarLibroDiario = gscAssistantGUI.runRecopilarLibroDiario.bind(gscAssistantGUI);
+window.runComparate = gscAssistantGUI.runComparate.bind(gscAssistantGUI);
+window.runAditoria = gscAssistantGUI.runAditoria.bind(gscAssistantGUI);

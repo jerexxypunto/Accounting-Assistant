@@ -1,0 +1,193 @@
+class ActionPanel{
+
+    constructor( ){
+        this.css_selector = "actions-panel";
+        this.nodo = document.querySelector(`.${this.css_selector}`);
+        this.actions = [];
+        this.step = 0;
+
+        if (!this.nodo) {
+            console.error(`ActionPanel: No se encontró el elemento ".${this.css_selector}" en el DOM`);
+        }
+    }
+
+    toogleDisableButton(){
+
+        if (!this.nodo) {
+            console.error(`ActionPanel: No existe el contenedor ".actions-panel"`);
+            return;
+        }
+
+        const buttons = this.nodo.querySelectorAll( ".actions-buttons button" );
+        buttons.forEach( button => {
+            button.disabled = true;
+        } );
+
+        console.log("Step: ", this.step );
+        console.log("CSS Selector: ", this.css_selector );
+
+        switch (this.step) {
+            case 0:
+                buttons[0].disabled = false;
+                this.step = 1;
+                break;
+
+            case 1:
+                buttons[1].disabled = false;
+                this.step = 2;
+                
+                break;
+
+            case 2:
+                buttons[2].disabled = false;
+                this.step = 3;
+                break;
+            
+            case 3:
+                buttons[3].disabled = false;
+                this.step = 4;
+                break;
+
+            case 4:
+                buttons[4].disabled = false;
+                break;
+        }
+
+    }
+
+    addAction( css_selector, callback, notiicationMsj ){
+
+        if (!this.nodo) {
+            console.error(`ActionPanel: No existe el contenedor ".actions-panel"`);
+            return;
+        }
+
+        const button = this.nodo.querySelector( `button.${css_selector}` );
+
+        if (!button) {
+            console.error(`ActionPanel: No se encontró "button.${css_selector}" dentro de ".actions-panel"`);
+            return;
+        }
+        
+        button.addEventListener( 'click', () => {        
+            this.showNotification(notiicationMsj);
+            callback()
+        } );
+        this.actions.push( button );
+    }
+
+    moneyParser(num) {
+
+        // Divide el string con numeros en donde cada fragmento tenga 3 caracteres:
+        // Elimina caracteres no numéricos (opcional, véase requerimientos reales)
+        num = String(num).replace(/\D/g, '');
+    
+        // Separa el string en fragmentos de tres caracteres desde la derecha
+        let parts = [];
+        for(let i = num.length; i > 0; i -= 3) {
+            let start = Math.max(i - 3, 0);
+            parts.unshift(num.slice(start, i));
+        }
+        return parts;
+    }
+
+    moneyShow(price, value = false  ){
+
+        const dataType = price.getAttribute("data-type");
+        const dataRow = price.getAttribute("data-row");
+
+        if( price.textContent === "0" || price.textContent === "$0" || price.textContent === "0 hrs"  ){
+            
+            let priceContent = 0;
+
+            console.log("dataRow: ", dataRow );
+
+            switch (dataRow) {
+
+                case "contrata_remuneracion":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.contrata.remuneracion ;
+                    break;
+
+                case "contrata_remuneracion_bono":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.contrata.remuneracionBono ;
+                    break;
+
+                case "contrata_horas_extras":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.contrata.total_gastos ;
+                    break;
+
+                case "personal_remuneracion":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.planta.remuneracion ;
+                    break;
+    
+                case "personal_remuneracion_bono":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.planta.remuneracionBono ;
+                    break;
+    
+                case "personal_horas_extras":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.planta.total_gastos ;
+                    break;
+                
+                case "total_remuneracion":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.suma.total_remuneracion;
+                    break;
+
+                case "total_remuneracion_bono":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.suma.total_remuneracion_bono;
+                    break;
+
+                case "total_horas_extras":
+                    value ? priceContent = value  : priceContent = window.portalTrasparencia.suma.total_gastos;
+                    break;
+
+                default:
+                    priceContent = value;
+                    break;
+            }
+
+            price.textContent = priceContent;
+            
+
+        }
+
+        const precioText = this.moneyParser(price.textContent).join(".");
+
+        if ( dataType == "time" ){
+             price.textContent = precioText + " hrs";
+        }
+
+        if ( dataType == "money" ){
+             price.textContent = "$" + precioText;
+        }
+    }
+
+    showNotification( msg ){
+        Toastify({
+            text: msg,
+            duration: 3000,
+            gravity: "top", // `top` or `bottom`
+            position: "left", // `left`, `center` or `right`
+            style: {
+                background: "linear-gradient(to right, #0AC4E0, #0992C2)",
+            },
+            }).showToast();
+    }
+
+    erroNotification( errorMsg ){
+        console.log("[erroNotification]: ", errorMsg);
+        Toastify({
+            text: errorMsg,
+            duration: 3000,
+            gravity: "top", // `top` or `bottom`
+            position: "left", // `left`, `center` or `right`
+            style: {
+                background: "linear-gradient(to right, #D96868, #E03131)",
+            },
+            }).showToast();
+    }
+
+    toogleLoader(){
+        const loader = document.querySelector(".loader-container");
+        loader.classList.toggle("d-none");
+    }
+}

@@ -1,0 +1,39 @@
+class GSC_Loader {
+    constructor(target) {
+        this.html = `<div class="loader-container d-none">
+                        <div class="loader ">
+                            <div class="spinner-grow text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-secondary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="spinner-grow text-info" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                                                
+                            <p class="text-secondary" >Cargando...</p>
+                        </div>
+                    </div>`;
+
+        this.parentElement = document.querySelector(target);
+    }
+
+    addLoader() {
+        if (!this.parentElement) {
+            return null;
+        }
+        const mount = document.createElement("div");
+        mount.className = "gsc-flow-loader-mount";
+        mount.innerHTML = this.html;
+        this.parentElement.appendChild(mount);
+        return this.parentElement.querySelector(".gsc-flow-loader-mount .loader-container");
+    }
+
+    toggle() {
+        const loader = this.parentElement?.querySelector(".loader-container");
+        if (loader) {
+            loader.classList.toggle("d-none");
+        }
+    }
+}

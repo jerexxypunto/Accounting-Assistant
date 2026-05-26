@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base target="_top">
+     <link rel="stylesheet" href="https://jerexxypunto.github.io/gsc-bootstrap/dist/css/gsc-bootstrap.css">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style> <?!= include('Styles') ?> </style> 
+</head>
+<body>
+    <div class="container py-4">
+
+        <h1>Accounting <span style="color:#000;" >Assistant</span></h1>
+    
+        <div class="contabilidad-flow">
+
+            <div class="actions-panel">
+                <div class="row">
+                    <div class="col-12 municipio-config-box">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <table class="table mb-0 table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">Municipio</th>
+                                            <td>
+                                                <span class="data config-municipio text-primary font-weight-bolder"></span>
+                                                <span class="data config-codigo text-primary"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Año de ejercicio</th>
+                                            <td>
+                                                <span class="data config-ejercicio text-primary font-weight-bolder"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Periodo de ejercicio</th>
+                                            <td>
+                                                <span class="data config-periodo text-primary font-weight-bolder"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 actions-buttons">
+                        <button class="btn trasparenciRecopilate mb-2"> Recopilar Transparencia </button>
+                        <button class="btn formatear mb-2" > Preparar Libro Diario </button>
+                        <button class="btn libroDiarioRecopilate mb-2" > Recopilar Libro Diario </button>
+                        <button class="btn compara mb-2" > Comparar Libro Diario </button>
+    
+                    </div>
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="card action-panel__info portal-trasnparencia mt-3">
+                                    <div class="card-body">
+                                        <div class="header">
+                                            <h3> Portal <span>Transparencia</span> </h3>
+                                        </div>             
+                                        <div class="row mt-3">
+                                            <div class="col-6">
+                                                <h4> Personal a Contrata </h4>
+                                                <div class="data">
+                                                    <span class="label">Total Remuneración Bruta:</span> <span data-type="money" data-row="contrata_remuneracion" class="valor">0</span>
+                                                </div>
+                                                <div class="data">
+                                                    <span class="label">Remuneración Bono e Incentivos:</span> <span data-type="money" data-row="contrata_remuneracion_bono" class="valor">0</span>
+                                                </div>
+                                                <div class="data">
+                                                    <span class="label">Horas Extras:</span> <span data-type="money" data-row="contrata_horas_extras" class="valor">0</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <h4> Personal de Planta </h4>
+                                                <div class="data">
+                                                    <span class="label">Total Remuneraciones:</span> <span data-type="money" data-row="personal_remuneracion" class="valor">0</span>
+                                                </div>
+                                                <div class="data">
+                                                    <span class="label">Remuneración Bono e Incentivos:</span> <span data-type="money" data-row="personal_remuneracion_bono" class="valor">0</span>
+                                                </div>
+                                                <div class="data">
+                                                    <span class="label">Horas Extras:</span> <span data-type="money" data-row="personal_horas_extras" class="valor">0</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mt-3">
+                                                <h4> Totales </h4>
+                                                <div class="data">
+                                                    <span class="label">Total Remuneraciones:</span> <span data-type="money" data-row="total_remuneracion" class="valor">0</span>
+                                                </div>
+                                                <div class="data">
+                                                    <span class="label">Total Remuneración Bono e Incentivos:</span> <span data-type="money" data-row="total_remuneracion_bono" class="valor">0</span>
+                                                </div>
+                                                <div class="data">
+                                                    <span class="label">Total Horas Extras:</span> <span data-type="money" data-row="total_horas_extras" class="valor">0</span>
+                                                </div>
+                                            </div>
+                                        </div>  
+                                    </div>          
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="card action-panel__info libro-diario mt-3">
+                                    <div class="card-body">                              
+                                        <div class="header">
+                                            <h3> Libro <span>Diario</span> </h3>
+                                        </div>  
+                                        <div class="row">
+                                            <div class="col-12 libro-diario-row contrata">
+                                                <h4>Personal a Contrata </h4>
+                                                <div class="data">
+                                                    <span class="label"><b>N° de Cuenta:</b></span> <span data-type="money" data-row="libro-diario-contrata-debe" class="valor">0</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 libro-diario-row planta">
+                                                <h4>Personal de Planta</h4>
+                                                <div class="data">
+                                                    <span class="label"> <b>N° de Cuenta:</b></span> <span data-type="money" data-row="libro-diario-planta-debe" class="valor">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-3 diferencia-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4>Alertas</h4>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- Persona Contrata -->
+            <div class="card mt-3 mb-3 config-personal-contrata card-config">
+                <div class="card-header">
+                    PERSONAL A CONTRATA
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-2">
+                        <label for="personaContrata_hojaDropdown">Selecciona una hoja de cálculo</label>
+                        <button class="btn btn-secondary btn-open-sheet-picker" type="button" id="personaContrata_hojaDropdown" data-toggle="modal" data-target="#personaContrata_modalHojas" aria-haspopup="dialog">
+                            Seleccionar
+                        </button>
+                    </div>
+                    <div class="config-sheet-summary mt-2 d-none" aria-live="polite">
+                        <div class="config-summary-id-row mb-1 d-none">
+                            <label class="small mb-0 d-block text-muted">ID</label>
+                            <div class="config-summary-id-value small text-body text-break"></div>
+                        </div>
+                        <div class="config-summary-tab-row mb-0 d-none">
+                            <label class="small mb-0 d-block text-muted">tab</label>
+                            <div class="config-summary-tab-value small text-body text-break"></div>
+                        </div>
+                    </div>
+                    <div class="config-form-text-fields d-none">
+                        <div class="form-group mb-2">
+                            <label for="personaContrata_spid">Spreadsheet ID</label>
+                            <input type="text" name="personaContrata_spid" id="personaContrata_spid" class="form-control">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="personaContrata_tabName">Nombre de hoja (tab)</label>
+                            <input type="text" name="personaContrata_tabName" id="personaContrata_tabName" class="form-control">
+                        </div>
+                        <button class="btn save">Guardar configuración</button>
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary edit-config mt-2">Editar</button>
+                    <a href="#" class="d-block mt-3" disabled target="_blank" >
+                        Ver documento 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                        </svg> 
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- Personal Planta -->
+            <div class="card mb-3 config-personal-planta card-config">
+                <div class="card-header">
+                    PERSONAL DE PLANTA
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-2">
+                        <label for="personalPlanta_hojaDropdown">Selecciona una hoja de cálculo</label>
+                        <button class="btn btn-secondary btn-open-sheet-picker" type="button" id="personalPlanta_hojaDropdown" data-toggle="modal" data-target="#personalPlanta_modalHojas" aria-haspopup="dialog">
+                            Seleccionar
+                        </button>
+                    </div>
+                    <div class="config-sheet-summary mt-2 d-none" aria-live="polite">
+                        <div class="config-summary-id-row mb-1 d-none">
+                            <label class="small mb-0 d-block text-muted">ID</label>
+                            <div class="config-summary-id-value small text-body text-break"></div>
+                        </div>
+                        <div class="config-summary-tab-row mb-0 d-none">
+                            <label class="small mb-0 d-block text-muted">tab</label>
+                            <div class="config-summary-tab-value small text-body text-break"></div>
+                        </div>
+                    </div>
+                    <div class="config-form-text-fields d-none">
+                        <div class="form-group mb-2">
+                            <label for="personalPlanta_spid">Spreadsheet ID</label>
+                            <input type="text" name="personalPlanta_spid" id="personalPlanta_spid" class="form-control">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="personalPlanta_tabName">Nombre de hoja (tab)</label>
+                            <input type="text" name="personalPlanta_tabName" id="personalPlanta_tabName" class="form-control">
+                        </div>
+                        <button class="btn save">Guardar configuración</button>
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary edit-config mt-2">Editar</button>
+                    <a href="#" class="d-block mt-3" disabled target="_blank" >
+                        Ver documento 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                        </svg> 
+                    </a>
+                </div>
+            </div>
+
+            <!-- Libro Diario -->
+            <div class="mb-3">
+                <div class="card config-librio-diario card-config">
+                    <div class="card-header">
+                        LIBRO DIARIO
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-2">
+                            <label for="libroDiario_hojaDropdown">Selecciona una hoja de cálculo</label>
+                            <button class="btn btn-secondary btn-open-sheet-picker" type="button" id="libroDiario_hojaDropdown" data-toggle="modal" data-target="#libroDiario_modalHojas" aria-haspopup="dialog">
+                                Seleccionar
+                            </button>
+                        </div>
+                        <div class="config-sheet-summary mt-2 d-none" aria-live="polite">
+                            <div class="config-summary-id-row mb-1 d-none">
+                                <label class="small mb-0 d-block text-muted">ID</label>
+                                <div class="config-summary-id-value small text-body text-break"></div>
+                            </div>
+                            <div class="config-summary-tab-row mb-0 d-none">
+                                <label class="small mb-0 d-block text-muted">tab</label>
+                                <div class="config-summary-tab-value small text-body text-break"></div>
+                            </div>
+                        </div>
+                        <div class="config-form-text-fields d-none">
+                            <div class="form-group mb-2">
+                                <label for="libroDiario_spid">Spreadsheet ID</label>
+                                <input type="text" name="libroDiario_spid" id="libroDiario_spid" class="form-control">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="libroDiario_tabName">Nombre de hoja (tab)</label>
+                                <input type="text" name="libroDiario_tabName" id="libroDiario_tabName" class="form-control">
+                            </div>
+                            <button class="btn save">Guardar configuración</button>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary edit-config mt-2">Editar</button>
+                        <a href="#" class="d-block mt-3" disabled target="_blank" >
+                            Ver documento 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                            </svg> 
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card mt-3 municipio-config">
+                    <div class="card-header">
+                        MUNICIPIO
+                    </div>
+                    <div class="card-body">
+                        <div class="config-form-text-fields d-none">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group mb-2">
+                                        <label for="libroDiario_static_1">Municipio ( Código )</label>
+                                        <input type="text" name="staticsFields[municipio]" id="municipio" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-2">
+                                        <label for="libroDiario_static_2">Municipio Nombre</label>
+                                        <input type="text" name="staticsFields[municipioNombre]" id="municipioNombre" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-2">
+                                        <label for="libroDiario_static_3">Ejercicio</label>
+                                        <input type="text" name="staticsFields[ejercicio]" id="ejercicio" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-2">
+                                        <label for="libroDiario_static_4">Periodo</label>
+                                        <input type="text" name="staticsFields[periodo]" id="periodo" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn save">Guardar configuración</button>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary edit-config mt-2">Editar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+   
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+    <script> <?!= include('GSC_Modal') ?> </script>
+    <script> <?!= include('ActionPanel') ?> </script>
+    <script> <?!= include('ConfigForm') ?> </script>
+    <script> <?!= include('Loader') ?> </script>
+    <script> <?!= include('GSC_Assitant_GUI') ?> </script>
+    <script> <?!= include('js_frontend') ?> </script>
+    
+</body>
+</html>
