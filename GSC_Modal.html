@@ -395,6 +395,7 @@ class GSC_Modal{
         // Configuración de los campos requeridos
         const campos = [
             { id: "glosa", label: "Glosa asiento", placeholder: "Ej: Pago de facturas..." },
+            { id: "rut", label: "RUT", placeholder: "Ej: 12.345.678-9" },
             { id: "cuenta-nombre", label: "Nombre cuenta", placeholder: "Ej: Caja Chica, Banco..." },
             { id: "cuenta-codigo", label: "Código cuenta", placeholder: "Ej: 1.1.01..." }
         ];
@@ -506,6 +507,7 @@ class GSC_Modal{
                             onSendReportCallback({
                                 query: {
                                     glosa: searchInputs["glosa"].value.trim(),
+                                    rut: searchInputs["rut"].value.trim(),
                                     nombreCuenta: searchInputs["cuenta-nombre"].value.trim(),
                                     codigoCuenta: searchInputs["cuenta-codigo"].value.trim()
                                 }
