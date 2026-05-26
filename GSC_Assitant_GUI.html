@@ -114,16 +114,18 @@ class GSC_Assitant_GUI {
 
       console.log( 'filasRaw', filasRaw );
 
-      const filas = filasRaw.map( resultado => {
-          return `<tr>
-              <td>${resultado.glosaAsiento}</td>
-              <td>${resultado.codigoCuenta}</td>
-              <td>${resultado.nombreCuenta}</td>
-              <td>${resultado.debe}</td>
-              <td>${resultado.haber}</td>
-              <td>$${resultado.rutContraparte}</td>
-          </tr>`;
-      } ).join("");
+      const filas = filasRaw.length === 0
+        ? `<tr><td colspan="6" class="text-center">No hemos encontrado coincidencias</td></tr>`
+        : filasRaw.map( resultado => {
+            return `<tr>
+                <td>${resultado.glosaAsiento}</td>
+                <td>${resultado.codigoCuenta}</td>
+                <td>${resultado.nombreCuenta}</td>
+                <td>${resultado.debe}</td>
+                <td>${resultado.haber}</td>
+                <td>$${resultado.rutContraparte}</td>
+            </tr>`;
+        } ).join("");
 
       console.log( 'filas', filas );
 
