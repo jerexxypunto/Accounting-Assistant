@@ -78,11 +78,13 @@ function enviarLibroDiarioBusquedaEmail(email, asunto, options) {
   // 1. Creamos la plantilla desde el archivo HTML
   var template = HtmlService.createTemplateFromFile('LibroDiarioSearch');
 
+  console.log( 'options', options )
+
   // Desestructuramos todas las opciones recibidas
   const { 
     keyword, searchTerm, mes, municipalidadTitle, periodo,
     id_document, nombre_document, link_document, nombre_tab,
-    total_haber, total_debe, coincidencias
+    total_haber, total_debe, coincidencias, rut
   } = options;
 
   const getMesLabel = (m) => {
@@ -107,6 +109,7 @@ function enviarLibroDiarioBusquedaEmail(email, asunto, options) {
   template.link_document = link_document;
   template.nombre_tab = nombre_tab;
   template.coincidencias = coincidencias; // Array de objetos con los asientos encontrados
+  template.rut = rut;
 
   // Formateamos los totales como moneda para que el HTML se vea profesional (ej: $1.250.000)
   template.total_debe = typeof total_debe === 'number' 

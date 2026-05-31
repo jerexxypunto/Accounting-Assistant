@@ -123,7 +123,7 @@ class GSC_Assitant_GUI {
                 <td>${resultado.nombreCuenta}</td>
                 <td>${resultado.debe}</td>
                 <td>${resultado.haber}</td>
-                <td>$${resultado.rutContraparte}</td>
+                <td>${resultado.rutContraparte}</td>
             </tr>`;
         } ).join("");
 
@@ -234,7 +234,8 @@ class GSC_Assitant_GUI {
             nombre_tab: "Custom Format",
             total_debe: totales.debe,     // Pasamos el número crudo (la función lo formatea a $)
             total_haber: totales.haber,   // Pasamos el número crudo
-            coincidencias: data // Pasamos el array completo para que el HTML genere el bucle
+            coincidencias: data // Pasamos el array completo para que el HTML genere el bucle,
+
           };
 
           if (!confirm("¿Desea enviar el reporte por correo electrónico?")) {

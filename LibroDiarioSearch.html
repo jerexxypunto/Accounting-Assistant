@@ -73,13 +73,16 @@
                     <tr style="background-color: #0992C2;"> 
                         <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> N de Cuenta </th> 
                         <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Glosa </th> 
-                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Fecha </th> 
+                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Fecha </th>
+                        <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Rut </th> 
                         <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Debe </th> 
                         <th style="color: #ffffff; font-family: 'Rubik', 'Helvetica Neue', sans-serif; font-size: 11px; font-weight: 500; padding: 12px 8px; text-align: left; border: 1px solid #0992C2;"> Haber </th> 
                     </tr>
 
+                    <? var row_limit = Math.min(coincidencias.length, 25); ?>
+
                     <!-- Filas de Datos Dinámicas -->
-                    <? for (var i = 0; i < 25 ; i++) { 
+                    <? for (var i = 0; i < row_limit; i++) { 
                         var asiento = coincidencias[i];
                         
                         // Lógica opcional para limpiar la fecha si viene con hora (ej: "2026-01-02T08:00...")
@@ -99,6 +102,9 @@
                         </td>
                         <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left; white-space: nowrap;">
                             <?= fechaFormateada ?>
+                        </td>
+                        <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: left; white-space: nowrap;">
+                            <?= rut ?>
                         </td>
                         <td style="padding: 10px 8px; background-color: #ffffff; border: 1px solid #e0e0e0; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 13px; line-height: 1.5em; color: #333333; text-align: right;">
                             $<?= (asiento.debe || 0).toLocaleString('es-CL') ?>
