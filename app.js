@@ -360,6 +360,7 @@ function buscarEnLibroDiario( allMemos, termino, columna ){
 
   registro.forEach( row => {
 
+
     if( ! row.hasOwnProperty( 'debe' ) ||  row.debe == "" ){
         row.debe = 0;
     }
@@ -372,7 +373,7 @@ function buscarEnLibroDiario( allMemos, termino, columna ){
         match.push( row );
     }
 
-    if( columna == 'nombreCuenta' && row.nombreCuenta.includes( termino ) ){
+    if( ( columna == 'fechaAsiento' || columna == 'fechaEmision' ) && row.fechaAsiento.includes( termino ) ){
         match.push( row )
     }
 
