@@ -9,8 +9,8 @@ const personalPlanta = {
 }
 
 const libroDiario = {
-  spreadsheetId : "1X1vsdCkX7IyNax56pJ_vMoFlMZSzG6GAr_96hGJuCb8",
-  tabName : "MACA_cal" ,
+  spreadsheetId : "1sBlhkvi_RZG-EKyoRIfF-2dcSUIbmldgFNbuvMfYDVs",
+  tabName : "Table 1" ,
   staticsFields: ["MU294",	"San Miguel",	"2025",	"12" ]
 }
 
@@ -243,7 +243,7 @@ function test(){
   const handler = new GSC_ContableHandler({
     planta: { spreadsheetId: personalPlanta.spid },
     contrata: { spreadsheetId: personaContrata.spid },
-    libroDiario: { spreadsheetId: libroDiario.spid, staticsFields: libroDiario.staticsFields }
+    libroDiario: { spreadsheetId: libroDiario.spreadsheetId, staticsFields: libroDiario.staticsFields }
   });
 
   const libroDiarioTabName = libroDiario.tabName;
@@ -375,6 +375,7 @@ function buscarEnLibroDiario( allMemos, termino, columna ){
 
     if( ( columna == 'fechaAsiento' || columna == 'fechaEmision' ) && row.fechaAsiento.includes( termino ) ){
         match.push( row )
+        console.log("Row: ", row );
     }
 
     if( columna == 'glosaAsiento' && row.glosaAsiento.includes( termino ) ){

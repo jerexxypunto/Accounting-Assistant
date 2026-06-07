@@ -360,7 +360,7 @@ class GSC_ContableHandler {
         };
     }
 
-    getLibroDiario( tabName ){
+    getLibroDiario( tabName, letterEnd = "K" ){
         if (!this._requireParam(this._isNonEmptyString(this.libroDiario?.spreadsheetId), "getLibroDiario", "No hay `libroDiario.spreadsheetId` configurado.", { libroDiario: this.libroDiario })) {
             return [];
         }
@@ -368,7 +368,7 @@ class GSC_ContableHandler {
             return [];
         }
         const libroDiarioHanlder = new GSC_SheetHandler( { spreadsheetId: this.libroDiario.spreadsheetId } );
-        const libroDiarioRawRows = libroDiarioHanlder.getRow( tabName, "K" );
+        const libroDiarioRawRows = libroDiarioHanlder.getRow( tabName, letterEnd, "A", 1 );
         return libroDiarioRawRows;
     }
 
@@ -495,6 +495,36 @@ class GSC_ContableHandler {
 
         console.log(`Se han encontrado ${tablesCounter} tablas.`);
         return tablesDetected;
+
+    }
+
+    libroDiarioTableGetType( libroDiarioRows ){
+        console.log("Detectando tipo de tabla..");
+        return "default";
+    }
+
+    libroDiarioDetectHeader( libroDiarioRows, tableType ){
+        console.log("Detectando header de tabla..");
+        console.log("tableType: ", tableType);
+        console.log("libroDiarioRows: ", libroDiarioRows);
+    }
+
+    libroDiarioDetectBody( libroDiarioRows, tableType ){
+        console.log("Detectando body de tabla..");
+    }
+
+    libroDiarioParser( libroDiarioRows, tabName ){
+
+        // Detecta el tipo de Tabla
+        const tableType = this.libroDiarioTableGetType( libroDiarioRows );
+
+        // Detecta el header de la tabla
+        this.libroDiarioDetectHeader( libroDiarioRows, tableType );
+
+        // Detecta el body de la tabla
+        this.libroDiarioDetectBody( libroDiarioRows, tableType );
+
+        // Genera un nuevo formato con los datos obtenidos
 
     }
 
@@ -656,18 +686,20 @@ class GSC_ContableHandler {
 
         console.log("tabCustomFormatSheet: ", tabCustomFormatSheet );
 
-        try {
+        const libroDiarioRawRows = this.getLibroDiario( tabName, "AR" );
+        const libroDiarioRows = libroDiarioRawRows.map( row => {
+             // Nos aseguramos de que no existan celdas vacias.
+             const cells = []
+             for (let i = 0; i < row.length; i++) {
+                const cellValue = row[i];
+                if( cellValue !== "" ){
+                    cells.push({ value: cellValue, index: i });
+                }
+             }
+             return cells;
+        } ) ; 
 
-            this.libroDiarioFormatHeader( newFormat );
-            const okReorder = this.libroDiarioReorderFields( this.libroDiario.spreadsheetId, tabName ,  newFormat )
-            if (okReorder === false) return { ok: false, error: "No se pudieron reordenar campos" };
-            const okWrite = this.libroDiarioWriteNewFormat( this.libroDiario.spreadsheetId, newFormat );
-            if (okWrite === false) return { ok: false, error: "No se pudo escribir el nuevo formato" };
-            return { "ok": true }
-        } catch (error) {
-                console.error("[GSC_ContableHandler.formatearLibroDiario] Error formateando libro diario.", { tabName, error });
-                return error;
-        }
+        this.libroDiarioParser( libroDiarioRows, tabName );
 
 
     }

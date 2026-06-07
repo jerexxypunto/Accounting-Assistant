@@ -223,7 +223,7 @@ class GSC_DriveHandler {
 
 }
 
-function test() {
+function testDrive() {
   driveHandler = new GSC_DriveHandler();
   const list = driveHandler.listRootFolders();
   list.forEach( ( item, i ) => {
